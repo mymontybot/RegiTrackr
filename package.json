@@ -11,6 +11,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",
     "@clerk/nextjs": "^6.39.0",
+    "@prisma/adapter-pg": "^7.4.2",
     "@prisma/client": "^7.4.2",
     "@sentry/nextjs": "^10.40.0",
     "@types/crypto-js": "^4.2.2",
@@ -21,11 +22,13 @@
     "inngest": "^3.52.4",
     "lucide-react": "^0.575.0",
     "next": "16.1.6",
+    "pg": "^8.19.0",
     "radix-ui": "^1.4.3",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "resend": "^6.9.3",
     "stripe": "^20.4.0",
+    "svix": "^1.86.0",
     "tailwind-merge": "^3.5.0",
     "zod": "^4.3.6"
   },

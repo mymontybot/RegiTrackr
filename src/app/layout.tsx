@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ClerkProvider } from "@clerk/nextjs";
 import { Geist, Geist_Mono } from "next/font/google";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import "./globals.css";
@@ -23,7 +24,9 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
+  const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+
+  const content = (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
@@ -31,5 +34,15 @@ export default function RootLayout({
         <TooltipProvider>{children}</TooltipProvider>
       </body>
     </html>
+  );
+
+  if (!publishableKey) {
+    return content;
+  }
+
+  return (
+    <ClerkProvider publishableKey={publishableKey}>
+      {content}
+    </ClerkProvider>
   );
 }
