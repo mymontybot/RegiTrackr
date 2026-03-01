@@ -26,6 +26,12 @@ export class ForbiddenError extends AppError {
   }
 }
 
+export class ValidationError extends AppError {
+  constructor(message = "Validation failed", details?: ErrorDetails) {
+    super(message, 400, details);
+  }
+}
+
 export class TenancyViolationError extends AppError {
   constructor(message = "Tenant scope violation detected", details?: ErrorDetails) {
     super(message, 403, details);

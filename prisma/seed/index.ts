@@ -1,9 +1,9 @@
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@prisma/client";
-import { seedStateThresholds } from "./state_thresholds.ts";
-import { seedStateFilingRules } from "./state_filing_rules.ts";
-import { seedPublicHolidays } from "./public_holidays.ts";
-import { seedDevFixtures } from "./dev_fixtures.ts";
+import { seedStateThresholds } from "./state_thresholds";
+import { seedStateFilingRules } from "./state_filing_rules";
+import { seedPublicHolidays } from "./public_holidays";
+import { seedDevFixtures } from "./dev_fixtures";
 
 const connectionString = process.env.DATABASE_URL;
 if (!connectionString) {
