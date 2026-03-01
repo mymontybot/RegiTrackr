@@ -3,7 +3,410 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "postgresql"
+  // Prisma v7: datasource URLs are configured in prisma.config.ts
+}
+
+enum BillingTier {
+  STARTER
+  GROWTH
+  PRO
+  ENTERPRISE
+}
+
+enum BillingStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELLED
+}
+
+enum UserRole {
+  FIRM_ADMIN
+  STAFF_ACCOUNTANT
+  READ_ONLY
+}
+
+enum EntityType {
+  LLC
+  S_CORP
+  C_CORP
+  PARTNERSHIP
+  SOLE_PROPRIETOR
+  NON_PROFIT
+  TRUST
+  OTHER
+}
+
+enum MeasurementPeriod {
+  CALENDAR_YEAR
+  ROLLING_12_MONTHS
+  PRIOR_YEAR
+}
+
+enum FilingFrequency {
+  MONTHLY
+  QUARTERLY
+  ANNUAL
+}
+
+enum NexusBand {
+  SAFE
+  WARNING
+  URGENT
+  TRIGGERED
+  REGISTERED
+}
+
+enum NexusRegistrationStatus {
+  MONITORING
+  REGISTERED
+  EXEMPT
+  IGNORED
+}
+
+enum FilingStatus {
+  UPCOMING
+  PREPARED
+  FILED
+  CONFIRMED
+  OVERDUE
+}
+
+enum AlertType {
+  WARNING_70
+  URGENT_90
+  TRIGGERED_100
+  TRIGGERED_NOT_REGISTERED
+  OVERDUE_FILING
+}
+
+enum RevenueSource {
+  MANUAL
+  CSV_IMPORT
+  CLIENT_PORTAL
+}
+
+enum DataConfidence {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+model Firm {
+  id                   String   @id @default(cuid())
+  name                 String
+  slug                 String   @unique
+  logoUrl              String?
+  supportEmail         String?
+  billingTier          BillingTier   @default(STARTER)
+  billingStatus        BillingStatus @default(ACTIVE)
+  stripeCustomerId     String?  @unique
+  stripeSubscriptionId String?  @unique
+  activeClientCount    Int      @default(0)
+  monthlyFloor         Int      @default(99)
+  pricePerClient       Int
+  alertPreferences     Json?
+  timezone             String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  users               User[]
+  clients             Client[]
+  entities            Entity[]
+  revenueEntries      RevenueEntry[]
+  nexusRegistrations  NexusRegistration[]
+  filingRecords       FilingRecord[]
+  filingStatusHistory FilingStatusHistory[]
+  alerts              Alert[]
+  aiSummaries         AiSummary[]
+  narrativeHistory    NarrativeHistory[]
+  portalUsers         PortalUser[]
+  portalInvitations   PortalInvitation[]
+}
+
+model User {
+  id          String   @id @default(cuid())
+  clerkUserId String   @unique
+  firmId      String
+  email       String
+  name        String?
+  role        UserRole
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  firm                Firm                 @relation(fields: [firmId], references: [id], onDelete: Cascade)
+  enteredRevenue      RevenueEntry[]       @relation("RevenueEntryEnteredBy")
+  assignedFilings     FilingRecord[]       @relation("FilingRecordAssignedUser")
+  statusChanges       FilingStatusHistory[] @relation("FilingStatusChangedBy")
+  snoozedAlerts       Alert[]              @relation("AlertSnoozedBy")
+  createdAiSummaries  AiSummary[]          @relation("AiSummaryCreatedBy")
+
+  @@index([firmId])
+  @@unique([firmId, email])
+}
+
+model Client {
+  id        String   @id @default(cuid())
+  firmId    String
+  name      String
+  industry  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  firm              Firm              @relation(fields: [firmId], references: [id], onDelete: Cascade)
+  entities          Entity[]
+  portalUsers       PortalUser[]
+  portalInvitations PortalInvitation[]
+  aiSummaries       AiSummary[]
+
+  @@index([firmId])
+}
+
+model Entity {
+  id         String   @id @default(cuid())
+  clientId   String
+  firmId     String
+  name       String
+  entityType EntityType
+  ein        String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  client             Client            @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  firm               Firm              @relation(fields: [firmId], references: [id], onDelete: Cascade)
+  revenueEntries     RevenueEntry[]
+  nexusRegistrations NexusRegistration[]
+  filingRecords      FilingRecord[]
+  alerts             Alert[]
+  aiSummaries        AiSummary[]
+  narrativeHistory   NarrativeHistory[]
+
+  @@index([firmId, clientId])
+}
+
+model StateThreshold {
+  id                   String            @id @default(cuid())
+  stateCode            String
+  stateName            String
+  salesThreshold       Decimal           @db.Decimal(14, 2)
+  transactionThreshold Int?
+  measurementPeriod    MeasurementPeriod
+  exemptCategories     Json?
+  effectiveDate        DateTime          @db.Date
+  sourceUrl            String
+  lastVerifiedAt       DateTime
+  dataConfidence       DataConfidence
+  notes                String?
+  version              Int
+  createdAt            DateTime          @default(now())
+
+  @@unique([stateCode, version])
+  @@index([stateCode, effectiveDate])
+}
+
+model StateFilingRule {
+  id                           String          @id @default(cuid())
+  stateCode                    String
+  filingFrequency              FilingFrequency
+  revenueThresholdForFrequency Decimal?        @db.Decimal(14, 2)
+  dueDateDaysAfterPeriod       Int
+  notes                        String?
+  version                      Int
+  createdAt                    DateTime        @default(now())
+
+  @@unique([stateCode, filingFrequency, version])
+  @@index([stateCode])
+}
+
+model PublicHoliday {
+  id        String   @id @default(cuid())
+  stateCode String?
+  date      DateTime @db.Date
+  name      String
+  year      Int
+
+  @@index([stateCode, year])
+  @@unique([stateCode, date, name])
+}
+
+model RevenueEntry {
+  id                 String        @id @default(cuid())
+  entityId           String
+  firmId             String
+  stateCode          String
+  periodYear         Int
+  periodMonth        Int
+  amount             Decimal       @db.Decimal(14, 2)
+  transactionCount   Int
+  source             RevenueSource
+  enteredByUserId    String?
+  clientAcknowledgedAt DateTime?
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  entity         Entity @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  firm           Firm   @relation(fields: [firmId], references: [id], onDelete: Cascade)
+  enteredByUser  User?  @relation("RevenueEntryEnteredBy", fields: [enteredByUserId], references: [id], onDelete: SetNull)
+
+  @@index([firmId, entityId, stateCode])
+}
+
+model NexusRegistration {
+  id                 String                 @id @default(cuid())
+  entityId           String
+  firmId             String
+  stateCode          String
+  status             NexusRegistrationStatus
+  registrationDate   DateTime?              @db.Date
+  filingFrequency    FilingFrequency?
+  stateAccountNumber String?
+  notes              String?
+  createdAt          DateTime               @default(now())
+  updatedAt          DateTime               @updatedAt
+
+  entity Entity @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  firm   Firm   @relation(fields: [firmId], references: [id], onDelete: Cascade)
+
+  @@index([firmId, entityId, stateCode])
+  @@unique([entityId, stateCode])
+}
+
+model FilingRecord {
+  id            String       @id @default(cuid())
+  entityId      String
+  firmId        String
+  stateCode     String
+  periodYear    Int
+  periodMonth   Int?
+  periodQuarter Int?
+  dueDate       DateTime     @db.Date
+  status        FilingStatus @default(UPCOMING)
+  assignedUserId String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  entity        Entity               @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  firm          Firm                 @relation(fields: [firmId], references: [id], onDelete: Cascade)
+  assignedUser  User?                @relation("FilingRecordAssignedUser", fields: [assignedUserId], references: [id], onDelete: SetNull)
+  statusHistory FilingStatusHistory[]
+
+  @@index([firmId, entityId, stateCode])
+  @@index([firmId, entityId, stateCode, dueDate])
+}
+
+model FilingStatusHistory {
+  id              String       @id @default(cuid())
+  filingRecordId  String
+  firmId          String
+  previousStatus  FilingStatus?
+  newStatus       FilingStatus
+  note            String
+  changedByUserId String?
+  changedAt       DateTime     @default(now())
+
+  filingRecord   FilingRecord @relation(fields: [filingRecordId], references: [id], onDelete: Cascade)
+  firm           Firm         @relation(fields: [firmId], references: [id], onDelete: Cascade)
+  changedByUser  User?        @relation("FilingStatusChangedBy", fields: [changedByUserId], references: [id], onDelete: SetNull)
+
+  @@index([filingRecordId])
+  @@index([firmId, changedAt])
+}
+
+model Alert {
+  id             String    @id @default(cuid())
+  entityId       String
+  firmId         String
+  stateCode      String
+  alertType      AlertType
+  band           NexusBand
+  periodKey      String
+  isRead         Boolean   @default(false)
+  isSnoozed      Boolean   @default(false)
+  snoozedUntil   DateTime?
+  snoozedByUserId String?
+  snoozeNote     String?
+  createdAt      DateTime  @default(now())
+
+  entity        Entity @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  firm          Firm   @relation(fields: [firmId], references: [id], onDelete: Cascade)
+  snoozedByUser User?  @relation("AlertSnoozedBy", fields: [snoozedByUserId], references: [id], onDelete: SetNull)
+
+  @@index([firmId, isRead, isSnoozed])
+}
+
+model AiSummary {
+  id               String   @id @default(cuid())
+  firmId           String
+  clientId         String?
+  entityId         String?
+  summaryType      String
+  inputHash        String
+  summaryText      String
+  highlights       Json?
+  dataQualityFlags Json?
+  generatedAt      DateTime
+  expiresAt        DateTime?
+  modelId          String
+  refreshReason    String?
+  createdByUserId  String?
+
+  firm          Firm    @relation(fields: [firmId], references: [id], onDelete: Cascade)
+  client        Client? @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  entity        Entity? @relation(fields: [entityId], references: [id], onDelete: SetNull)
+  createdByUser User?   @relation("AiSummaryCreatedBy", fields: [createdByUserId], references: [id], onDelete: SetNull)
+
+  @@index([entityId, summaryType])
+  @@index([firmId, inputHash])
+}
+
+model NarrativeHistory {
+  id               String   @id @default(cuid())
+  firmId           String
+  entityId         String
+  summaryText      String
+  highlights       Json?
+  dataQualityFlags Json?
+  generatedAt      DateTime
+  modelId          String
+  inputSnapshot    Json
+  retainUntil      DateTime
+
+  firm   Firm   @relation(fields: [firmId], references: [id], onDelete: Cascade)
+  entity Entity @relation(fields: [entityId], references: [id], onDelete: Cascade)
+
+  @@index([entityId, retainUntil])
+}
+
+model PortalUser {
+  id               String   @id @default(cuid())
+  email            String
+  firmId           String
+  clientId         String
+  passwordHash     String
+  canSubmitRevenue Boolean  @default(false)
+  isActive         Boolean  @default(true)
+  lastLoginAt      DateTime?
+  createdAt        DateTime @default(now())
+
+  firm   Firm   @relation(fields: [firmId], references: [id], onDelete: Cascade)
+  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@index([firmId, clientId])
+  @@unique([firmId, email])
+}
+
+model PortalInvitation {
+  id         String   @id @default(cuid())
+  firmId     String
+  clientId   String
+  email      String
+  token      String   @unique
+  expiresAt  DateTime
+  acceptedAt DateTime?
+  createdAt  DateTime @default(now())
+
+  firm   Firm   @relation(fields: [firmId], references: [id], onDelete: Cascade)
+  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@index([firmId, clientId])
 }
