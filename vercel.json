@@ -1,24 +1,4 @@
 {
   "framework": "nextjs",
-  "buildCommand": "prisma generate && next build",
-  "env": {
-    "DATABASE_URL": "@database_url",
-    "DIRECT_URL": "@direct_url",
-    "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY": "@next_public_clerk_publishable_key",
-    "CLERK_SECRET_KEY": "@clerk_secret_key",
-    "CLERK_WEBHOOK_SECRET": "@clerk_webhook_secret",
-    "ANTHROPIC_API_KEY": "@anthropic_api_key",
-    "UPSTASH_REDIS_REST_URL": "@upstash_redis_rest_url",
-    "UPSTASH_REDIS_REST_TOKEN": "@upstash_redis_rest_token",
-    "INNGEST_SIGNING_KEY": "@inngest_signing_key",
-    "INNGEST_EVENT_KEY": "@inngest_event_key",
-    "RESEND_API_KEY": "@resend_api_key",
-    "SENTRY_DSN": "@sentry_dsn",
-    "STRIPE_SECRET_KEY": "@stripe_secret_key",
-    "STRIPE_WEBHOOK_SECRET": "@stripe_webhook_secret",
-    "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY": "@next_public_stripe_publishable_key",
-    "ENCRYPTION_KEY": "@encryption_key",
-    "PORTAL_JWT_SECRET": "@portal_jwt_secret",
-    "NEXT_PUBLIC_APP_URL": "@next_public_app_url"
-  }
+  "buildCommand": "prisma generate && next build"
 }
