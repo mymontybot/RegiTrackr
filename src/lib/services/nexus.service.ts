@@ -15,12 +15,54 @@ type AlertFilters = {
   unreadOnly?: boolean;
 };
 
+export type AlertCenterTab = "active" | "snoozed";
+export type AlertCenterSort = "newest" | "most_urgent";
+
+export type AlertCenterFilters = {
+  tab?: AlertCenterTab;
+  alertType?: AlertType;
+  clientId?: string;
+  stateCode?: string;
+  urgency?: PrismaNexusBand;
+  sort?: AlertCenterSort;
+};
+
+export type AlertCenterItem = {
+  id: string;
+  clientId: string;
+  clientName: string;
+  entityId: string;
+  entityName: string;
+  stateCode: string;
+  alertType: AlertType;
+  band: PrismaNexusBand;
+  createdAt: Date;
+  isRead: boolean;
+  isSnoozed: boolean;
+  snoozedUntil: Date | null;
+  snoozeNote: string | null;
+  snoozedBy: {
+    id: string;
+    name: string | null;
+    email: string;
+  } | null;
+  lastEmailSentAt: Date | null;
+};
+
 const ALERT_PRIORITY: Record<AlertType, number> = {
   TRIGGERED_NOT_REGISTERED: 0,
   TRIGGERED_100: 1,
   OVERDUE_FILING: 2,
   URGENT_90: 3,
   WARNING_70: 4,
+};
+
+const BAND_PRIORITY: Record<PrismaNexusBand, number> = {
+  TRIGGERED: 0,
+  URGENT: 1,
+  WARNING: 2,
+  REGISTERED: 3,
+  SAFE: 4,
 };
 
 function toPrismaBand(band: NexusAlert["band"]): PrismaNexusBand {
@@ -236,6 +278,22 @@ export class NexusService extends BaseService {
     });
   }
 
+  async markAlertRead(alertId: string): Promise<Alert> {
+    const prisma = this.getPrisma();
+    const alert = await prisma.alert.findUnique({
+      where: { id: alertId },
+    });
+    if (!alert) {
+      throw new ResourceNotFoundError("Alert not found", { alertId });
+    }
+    this.assertFirmScope(alert);
+
+    return prisma.alert.update({
+      where: { id: alertId },
+      data: { isRead: true },
+    });
+  }
+
   async getActiveAlerts(firmId: string, filters: AlertFilters = {}): Promise<Alert[]> {
     if (firmId !== this.firmId) {
       throw new TenancyViolationError("firmId must come from tenant context", {
@@ -260,5 +318,117 @@ export class NexusService extends BaseService {
       if (weightA !== weightB) return weightA - weightB;
       return b.createdAt.getTime() - a.createdAt.getTime();
     });
+  }
+
+  async getAlertsForCenter(filters: AlertCenterFilters = {}): Promise<AlertCenterItem[]> {
+    const tab = filters.tab ?? "active";
+    const sort = filters.sort ?? "most_urgent";
+
+    const alerts = await this.getPrisma().alert.findMany({
+      where: {
+        firmId: this.firmId,
+        isSnoozed: tab === "snoozed",
+        alertType: filters.alertType,
+        stateCode: filters.stateCode,
+        band: filters.urgency,
+        entity: {
+          clientId: filters.clientId,
+        },
+      },
+      include: {
+        entity: {
+          select: {
+            id: true,
+            name: true,
+            client: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+        snoozedByUser: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
+      orderBy: [{ createdAt: "desc" }],
+    });
+
+    const mapped: AlertCenterItem[] = alerts.map((alert) => ({
+      id: alert.id,
+      clientId: alert.entity.client.id,
+      clientName: alert.entity.client.name,
+      entityId: alert.entity.id,
+      entityName: alert.entity.name,
+      stateCode: alert.stateCode,
+      alertType: alert.alertType,
+      band: alert.band,
+      createdAt: alert.createdAt,
+      isRead: alert.isRead,
+      isSnoozed: alert.isSnoozed,
+      snoozedUntil: alert.snoozedUntil,
+      snoozeNote: alert.snoozeNote,
+      snoozedBy: alert.snoozedByUser,
+      // Current schema has no outbound-email log table; use alert creation as initial send timestamp.
+      lastEmailSentAt: alert.createdAt,
+    }));
+
+    if (sort === "newest") {
+      return mapped.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    }
+
+    return mapped.sort((a, b) => {
+      const bandDiff = BAND_PRIORITY[a.band] - BAND_PRIORITY[b.band];
+      if (bandDiff !== 0) return bandDiff;
+      const alertTypeDiff = ALERT_PRIORITY[a.alertType] - ALERT_PRIORITY[b.alertType];
+      if (alertTypeDiff !== 0) return alertTypeDiff;
+      return b.createdAt.getTime() - a.createdAt.getTime();
+    });
+  }
+
+  async bulkSnoozeAlerts(payload: {
+    alertIds: string[];
+    note: string;
+    days?: number;
+  }): Promise<{ updatedCount: number; snoozedUntil: Date }> {
+    const note = payload.note?.trim();
+    if (!note) {
+      throw new ValidationError("Snooze note is required");
+    }
+    if (!payload.alertIds.length) {
+      throw new ValidationError("At least one alert is required");
+    }
+
+    const alerts = await this.getPrisma().alert.findMany({
+      where: { id: { in: payload.alertIds } },
+      select: { firmId: true },
+    });
+    for (const alert of alerts) {
+      this.assertFirmScope(alert);
+    }
+
+    const days = payload.days ?? 30;
+    const snoozedUntil = new Date();
+    snoozedUntil.setUTCDate(snoozedUntil.getUTCDate() + days);
+
+    const result = await this.getPrisma().alert.updateMany({
+      where: {
+        id: { in: payload.alertIds },
+        firmId: this.firmId,
+      },
+      data: {
+        isSnoozed: true,
+        snoozedUntil,
+        snoozedByUserId: this.userId,
+        snoozeNote: note,
+      },
+    });
+
+    return { updatedCount: result.count, snoozedUntil };
   }
 }

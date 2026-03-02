@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Geist, Geist_Mono } from "next/font/google";
+import { SentryErrorBoundary } from "@/components/providers/SentryErrorBoundary";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import "./globals.css";
 
@@ -31,7 +32,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <TooltipProvider>{children}</TooltipProvider>
+        <SentryErrorBoundary boundaryName="global-layout">
+          <TooltipProvider>{children}</TooltipProvider>
+        </SentryErrorBoundary>
       </body>
     </html>
   );

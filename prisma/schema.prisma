@@ -120,6 +120,7 @@ model Firm {
   alerts              Alert[]
   aiSummaries         AiSummary[]
   narrativeHistory    NarrativeHistory[]
+  notifications      Notification[]
   portalUsers         PortalUser[]
   portalInvitations   PortalInvitation[]
 }
@@ -136,6 +137,7 @@ model User {
 
   firm                Firm                 @relation(fields: [firmId], references: [id], onDelete: Cascade)
   enteredRevenue      RevenueEntry[]       @relation("RevenueEntryEnteredBy")
+  assignedClients     Client[]             @relation("ClientAssignedUser")
   assignedFilings     FilingRecord[]       @relation("FilingRecordAssignedUser")
   statusChanges       FilingStatusHistory[] @relation("FilingStatusChangedBy")
   snoozedAlerts       Alert[]              @relation("AlertSnoozedBy")
@@ -148,18 +150,22 @@ model User {
 model Client {
   id        String   @id @default(cuid())
   firmId    String
+  assignedUserId String?
   name      String
   industry  String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   firm              Firm              @relation(fields: [firmId], references: [id], onDelete: Cascade)
+  assignedUser      User?             @relation("ClientAssignedUser", fields: [assignedUserId], references: [id], onDelete: SetNull)
   entities          Entity[]
   portalUsers       PortalUser[]
   portalInvitations PortalInvitation[]
   aiSummaries       AiSummary[]
+  notifications     Notification[]
 
   @@index([firmId])
+  @@index([firmId, assignedUserId])
 }
 
 model Entity {
@@ -180,6 +186,7 @@ model Entity {
   alerts             Alert[]
   aiSummaries        AiSummary[]
   narrativeHistory   NarrativeHistory[]
+  notifications      Notification[]
 
   @@index([firmId, clientId])
 }
@@ -289,6 +296,7 @@ model FilingRecord {
   firm          Firm                 @relation(fields: [firmId], references: [id], onDelete: Cascade)
   assignedUser  User?                @relation("FilingRecordAssignedUser", fields: [assignedUserId], references: [id], onDelete: SetNull)
   statusHistory FilingStatusHistory[]
+  notifications Notification[]
 
   @@index([firmId, entityId, stateCode])
   @@index([firmId, entityId, stateCode, dueDate])
@@ -409,4 +417,32 @@ model PortalInvitation {
   client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
 
   @@index([firmId, clientId])
+}
+
+model Notification {
+  id               String    @id @default(cuid())
+  firmId           String
+  clientId         String?
+  entityId         String?
+  filingRecordId   String?
+  notificationType String
+  dedupeKey        String    @unique
+  channel          String    @default("EMAIL")
+  recipientEmail   String
+  subject          String
+  payload          Json?
+  status           String    @default("SENT")
+  sentAt           DateTime?
+  createdAt        DateTime  @default(now())
+
+  firm         Firm         @relation(fields: [firmId], references: [id], onDelete: Cascade)
+  client       Client?      @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  entity       Entity?      @relation(fields: [entityId], references: [id], onDelete: SetNull)
+  filingRecord FilingRecord? @relation(fields: [filingRecordId], references: [id], onDelete: SetNull)
+
+  @@index([firmId, createdAt])
+  @@index([firmId, notificationType])
+  @@index([clientId])
+  @@index([entityId])
+  @@index([filingRecordId])
 }
