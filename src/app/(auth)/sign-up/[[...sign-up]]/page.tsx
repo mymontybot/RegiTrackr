@@ -63,6 +63,17 @@ export default function SignUpPage() {
             Create your firm account
           </h1>
           <SignUp appearance={appearance} afterSignUpUrl="/onboarding" />
+          <p className="mx-auto mt-4 max-w-sm text-center text-xs leading-relaxed text-slate-600">
+            By creating an account you agree to our{" "}
+            <a href="/terms" className="text-slate-400 underline hover:text-slate-300">
+              Terms of Service
+            </a>{" "}
+            and{" "}
+            <a href="/privacy" className="text-slate-400 underline hover:text-slate-300">
+              Privacy Policy
+            </a>
+            . RegiTrackr subscriptions renew automatically. Cancel any time in account settings.
+          </p>
           <p className="mt-6 text-center text-sm text-slate-400">
             Already have an account?{" "}
             <Link
