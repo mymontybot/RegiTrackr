@@ -4,9 +4,14 @@ import { ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { PricingCalculator } from "@/components/marketing/PricingCalculator";
-import { PRICING } from "@/lib/config/pricing";
+import { ANNUAL_DISCOUNT, PRICING } from "@/lib/config/pricing";
 
 const FAQ_ITEMS = [
+  {
+    question: "How does annual billing work?",
+    answer:
+      "If you choose annual billing, you pay for 12 months upfront at a 20% discount off the monthly rate. For a Growth firm with 30 clients, that means paying $3,888 instead of $4,860 - a saving of $972. If you cancel before the end of your annual period, we refund the unused months on a pro-rata basis. No questions asked.",
+  },
   {
     question: "How is the client count calculated?",
     answer:
@@ -71,30 +76,7 @@ export default function PricingPage() {
 
   return (
     <>
-      <header className="fixed inset-x-0 top-0 z-50 border-b border-white/[0.06] bg-[#060B18]/90 backdrop-blur-sm">
-        <nav className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <Link
-            href="/"
-            className="[font-family:var(--font-syne),system-ui,sans-serif] text-xl font-bold tracking-[-0.02em] text-slate-100"
-          >
-            RegiTrackr
-          </Link>
-          <div className="flex items-center gap-4">
-            <Link href="/sign-in" className="text-sm text-slate-300 transition-colors hover:text-slate-100">
-              Sign in
-            </Link>
-            <a
-              href="/#waitlist"
-              className="rounded-lg bg-blue-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-600"
-            >
-              Join waitlist
-            </a>
-          </div>
-        </nav>
-      </header>
-
-      <main className="bg-[#060B18] pt-16">
-        <section className="py-24 text-center">
+      <section className="bg-[#060B18] py-24 text-center">
           <div className="mx-auto w-full max-w-4xl px-4 sm:px-6 lg:px-8">
             <Eyebrow>Pricing</Eyebrow>
             <h1 className="mt-6 whitespace-pre-line [font-family:var(--font-syne),system-ui,sans-serif] text-4xl font-bold tracking-[-0.02em] text-slate-100 lg:text-5xl">
@@ -134,15 +116,27 @@ export default function PricingPage() {
                       {formatCurrency(tier.pricePerClient)}
                       <span className="ml-1 text-sm font-normal text-slate-500">/client/mo</span>
                     </p>
+                    <div className="mt-2 flex items-center gap-2">
+                      <p className="font-mono text-xl font-semibold text-[#4ADE80]">
+                        {formatCurrency(Math.round(tier.pricePerClient * (1 - ANNUAL_DISCOUNT)))}
+                        <span className="ml-1 text-xs font-normal text-slate-400">/client/mo billed annually</span>
+                      </p>
+                      <span className="rounded-full border border-[#166534] bg-[#052E16] px-2 py-0.5 font-mono text-xs text-[#4ADE80]">
+                        Save 20%
+                      </span>
+                    </div>
                     <p className="mt-2 text-sm text-[#FDE047]">
-                      Founding rate: {formatCurrency(tier.foundingPricePerClient)}/client
+                      Founding rate: {formatCurrency(tier.foundingPricePerClient)}/client/mo (
+                      {formatCurrency(Math.round(tier.foundingPricePerClient * (1 - ANNUAL_DISCOUNT)))}
+                      /client/mo billed annually)
                     </p>
                     {tier.id === "enterprise" ? (
                       <p className="mt-3 text-xs text-slate-500">Contact us for Enterprise pricing</p>
                     ) : null}
                     {"platformFee" in tier ? (
                       <p className="mt-1 text-xs text-slate-500">
-                        + {formatCurrency(tier.platformFee)} platform fee
+                        + {formatCurrency(tier.platformFee)} platform fee monthly (
+                        {formatCurrency(Math.round(tier.platformFee * (1 - ANNUAL_DISCOUNT)))} annual)
                       </p>
                     ) : null}
                     <p className="mt-4 text-xs text-slate-600">Min. {formatCurrency(PRICING.floor)}/mo</p>
@@ -161,7 +155,8 @@ export default function PricingPage() {
               <p className="mt-3 text-sm leading-relaxed text-slate-400">
                 The first 25 CPA firms to subscribe to RegiTrackr receive founding member pricing locked for life.
                 Rates are 25-35% below standard pricing and never increase as long as your subscription stays active.
-                When founding spots are gone, they are gone.
+                Founding member rates apply to both monthly and annual billing. Annual billing saves an additional 20%
+                on top of the founding member rate. When founding spots are gone, they are gone.
               </p>
               <a
                 href="/#waitlist"
@@ -206,31 +201,7 @@ export default function PricingPage() {
               RegiTrackr is a compliance monitoring tool and does not provide tax advice.
             </p>
           </div>
-        </section>
-      </main>
-
-      <footer className="border-t border-[#1E2D4A] bg-[#060B18] py-8">
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 px-4 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
-          <p>© 2026 RegiTrackr</p>
-          <div className="flex items-center gap-3">
-            <Link href="/privacy" className="transition-colors hover:text-slate-300">
-              Privacy
-            </Link>
-            <span>·</span>
-            <Link href="/terms" className="transition-colors hover:text-slate-300">
-              Terms
-            </Link>
-            <span>·</span>
-            <Link href="/security" className="transition-colors hover:text-slate-300">
-              Security
-            </Link>
-            <span>·</span>
-            <Link href="/sign-in" className="transition-colors hover:text-slate-300">
-              Sign in
-            </Link>
-          </div>
-        </div>
-      </footer>
+      </section>
     </>
   );
 }

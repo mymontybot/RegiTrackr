@@ -1,8 +1,9 @@
 "use client";
 
+import { CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { calculatePrice, PRICING } from "@/lib/config/pricing";
+import { calculatePrice } from "@/lib/config/pricing";
 import type { TierId } from "@/lib/config/pricing";
 
 const PRESETS = [5, 15, 30, 75, 150] as const;
@@ -27,10 +28,11 @@ export function PricingCalculator() {
   const [selectedPreset, setSelectedPreset] = useState<number | null>(15);
   const [customInput, setCustomInput] = useState("");
   const [isFoundingMember, setIsFoundingMember] = useState(false);
+  const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">("monthly");
 
   const result = useMemo(
-    () => calculatePrice(Math.max(1, Math.min(500, clients)), isFoundingMember),
-    [clients, isFoundingMember],
+    () => calculatePrice(Math.max(1, Math.min(500, clients)), isFoundingMember, billingCycle),
+    [billingCycle, clients, isFoundingMember],
   );
   const tierId = result.tier.id as TierId;
 
@@ -71,6 +73,35 @@ export function PricingCalculator() {
           <label className="mb-3 block text-xs font-medium text-slate-400">
             How many clients does your firm manage?
           </label>
+          <div className="mb-4 inline-flex rounded-lg border border-[#1E2D4A] bg-[#060B18] p-1">
+            <button
+              type="button"
+              onClick={() => setBillingCycle("monthly")}
+              className={`cursor-pointer rounded-md px-4 py-1.5 text-sm font-medium transition-colors ${
+                billingCycle === "monthly"
+                  ? "bg-[#0D1526] text-slate-100 shadow-sm"
+                  : "text-slate-500 hover:text-slate-300"
+              }`}
+            >
+              Monthly
+            </button>
+            <button
+              type="button"
+              onClick={() => setBillingCycle("annual")}
+              className={`cursor-pointer rounded-md px-4 py-1.5 text-sm font-medium transition-colors ${
+                billingCycle === "annual"
+                  ? "bg-[#0D1526] text-slate-100 shadow-sm"
+                  : "text-slate-500 hover:text-slate-300"
+              }`}
+            >
+              Annual
+              {billingCycle === "annual" ? (
+                <span className="ml-1 rounded-full bg-[#052E16] px-1.5 py-0.5 font-mono text-xs text-[#4ADE80]">
+                  Save 20%
+                </span>
+              ) : null}
+            </button>
+          </div>
           <div className="flex flex-wrap gap-2">
             {PRESETS.map((value) => (
               <button
@@ -119,8 +150,20 @@ export function PricingCalculator() {
             <p className={`mt-2 font-mono text-4xl font-bold transition-all duration-150 ${isFoundingMember ? "text-[#FDE047]" : "text-slate-100"}`}>
               About {formatCurrency(result.monthly)}/month
             </p>
+            {billingCycle === "annual" ? (
+              <>
+                <p className="mt-1 text-sm text-slate-400">
+                  Billed as {formatCurrency(result.annualTotal)}/year
+                </p>
+                <p className="mt-1 inline-flex items-center gap-1 text-sm font-medium text-[#4ADE80]">
+                  <CheckCircle2 className="h-4 w-4" />
+                  You save {formatCurrency(result.annualSavings)} compared to monthly billing
+                </p>
+              </>
+            ) : null}
             <p className="mt-2 text-sm text-slate-400">
-              {result.clients} clients at {formatCurrency(result.pricePerClient)}/client
+              {result.clients} clients at {formatCurrency(result.pricePerClient)}
+              {billingCycle === "annual" ? "/client/month (billed annually)" : "/client"}
               {isFoundingMember ? <span className="text-[#FDE047]"> (founding member rate)</span> : null}
             </p>
             {result.floorApplied ? (
@@ -129,15 +172,18 @@ export function PricingCalculator() {
 
             {result.isEnterprise ? (
               <div className="mt-4 rounded-lg border border-[#5B21B6] bg-[#1E1B4B] p-3 text-xs text-slate-400">
-                Enterprise pricing includes a $500 platform fee plus $25/client/month. Contact us to discuss custom
-                onboarding and integrations.
+                {billingCycle === "annual"
+                  ? "Annual enterprise pricing includes a discounted platform fee plus $20/client/month (billed as one annual payment). Contact us for a custom quote."
+                  : "Enterprise pricing includes a $500 platform fee plus $25/client/month. Contact us to discuss custom onboarding and integrations."}
               </div>
             ) : null}
           </div>
         </div>
 
         <p className="mt-6 text-center text-sm text-slate-500">
-          All plans include nexus monitoring, filing calendar, and AI narratives. No long-term contract.
+          {billingCycle === "annual"
+            ? "All plans include nexus monitoring, filing calendar, and AI narratives. Billed annually. Cancel before renewal for a full refund of unused months."
+            : "All plans include nexus monitoring, filing calendar, and AI narratives. No long-term contract."}
           <Link href="/pricing" className="ml-1 text-blue-400 hover:text-blue-300">
             See full pricing details
           </Link>

@@ -2,6 +2,13 @@ import { Activity, Calendar, Sparkles, Users } from "lucide-react";
 import Link from "next/link";
 import { WaitlistForm } from "@/components/marketing/WaitlistForm";
 
+export const metadata = {
+  title: "RegiTrackr — Nexus Compliance Monitoring for CPA Firms",
+  description:
+    "Real-time economic nexus threshold monitoring, filing deadline management, and AI-powered compliance briefings for CPA firms managing multi-state clients.",
+  alternates: { canonical: "https://regitrackr.com" },
+};
+
 const comparisonRows = [
   { feature: "Nexus threshold monitoring", regitrackr: "✓", avalara: "Partial", taxjar: "Partial", spreadsheets: "Manual" },
   { feature: "CPA multi-client dashboard", regitrackr: "✓", avalara: "-", taxjar: "-", spreadsheets: "Manual" },
@@ -39,29 +46,6 @@ function renderCellValue(value: string) {
 export default function MarketingPage() {
   return (
     <>
-      <header className="fixed inset-x-0 top-0 z-50 border-b border-white/[0.06] bg-[#060B18]/90 backdrop-blur-sm">
-        <nav className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <Link
-            href="/"
-            className="[font-family:var(--font-syne),system-ui,sans-serif] text-xl font-bold tracking-[-0.02em] text-slate-100"
-          >
-            RegiTrackr
-          </Link>
-          <div className="flex items-center gap-4">
-            <Link href="/sign-in" className="text-sm text-slate-300 transition-colors hover:text-slate-100">
-              Sign in
-            </Link>
-            <a
-              href="#waitlist"
-              className="rounded-lg bg-blue-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-600"
-            >
-              Join waitlist
-            </a>
-          </div>
-        </nav>
-      </header>
-
-      <main className="pt-16">
         <section className="relative overflow-hidden bg-[#060B18] py-32 sm:py-36">
           <div
             className="pointer-events-none absolute inset-0"
@@ -271,30 +255,6 @@ export default function MarketingPage() {
             </div>
           </div>
         </section>
-      </main>
-
-      <footer className="border-t border-[#1E2D4A] bg-[#060B18] py-8">
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 px-4 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
-          <p>© 2026 RegiTrackr</p>
-          <div className="flex items-center gap-3">
-            <Link href="/privacy" className="transition-colors hover:text-slate-300">
-              Privacy
-            </Link>
-            <span>·</span>
-            <Link href="/terms" className="transition-colors hover:text-slate-300">
-              Terms
-            </Link>
-            <span>·</span>
-            <Link href="/security" className="transition-colors hover:text-slate-300">
-              Security
-            </Link>
-            <span>·</span>
-            <Link href="/sign-in" className="transition-colors hover:text-slate-300">
-              Sign in
-            </Link>
-          </div>
-        </div>
-      </footer>
     </>
   );
 }

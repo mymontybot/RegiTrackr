@@ -1,37 +1,15 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Privacy Policy | RegiTrackr",
+  title: "Privacy Policy — RegiTrackr",
   description: "Privacy Policy for RegiTrackr: how we collect, store, and protect your data.",
+  alternates: { canonical: "https://regitrackr.com/privacy" },
 };
 
 export default function PrivacyPage() {
   return (
     <>
-      <header className="fixed inset-x-0 top-0 z-50 border-b border-white/[0.06] bg-[#060B18]/90 backdrop-blur-sm">
-        <nav className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <Link
-            href="/"
-            className="[font-family:var(--font-syne),system-ui,sans-serif] text-xl font-bold tracking-[-0.02em] text-slate-100"
-          >
-            RegiTrackr
-          </Link>
-          <div className="flex items-center gap-4">
-            <Link href="/sign-in" className="text-sm text-slate-300 transition-colors hover:text-slate-100">
-              Sign in
-            </Link>
-            <a
-              href="/#waitlist"
-              className="rounded-lg bg-blue-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-600"
-            >
-              Join waitlist
-            </a>
-          </div>
-        </nav>
-      </header>
-
-      <main className="pt-16">
-        <article className="prose prose-invert mx-auto max-w-3xl px-4 py-24 text-slate-300 sm:px-6 lg:px-8 prose-headings:text-slate-100 prose-p:leading-relaxed prose-ul:leading-relaxed">
+      <article className="prose prose-invert mx-auto max-w-3xl px-4 py-24 text-slate-300 sm:px-6 lg:px-8 prose-headings:text-slate-100 prose-p:leading-relaxed prose-ul:leading-relaxed">
           <h1 className="text-3xl font-bold text-slate-100">Privacy Policy</h1>
           <p className="text-sm text-slate-500">Last updated: March 2026</p>
 
@@ -111,30 +89,6 @@ export default function PrivacyPage() {
             .
           </p>
         </article>
-      </main>
-
-      <footer className="border-t border-[#1E2D4A] bg-[#060B18] py-8">
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 px-4 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
-          <p>© 2026 RegiTrackr</p>
-          <div className="flex items-center gap-3">
-            <Link href="/privacy" className="transition-colors hover:text-slate-300">
-              Privacy
-            </Link>
-            <span>·</span>
-            <Link href="/terms" className="transition-colors hover:text-slate-300">
-              Terms
-            </Link>
-            <span>·</span>
-            <Link href="/security" className="transition-colors hover:text-slate-300">
-              Security
-            </Link>
-            <span>·</span>
-            <Link href="/sign-in" className="transition-colors hover:text-slate-300">
-              Sign in
-            </Link>
-          </div>
-        </div>
-      </footer>
     </>
   );
 }

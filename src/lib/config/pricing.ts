@@ -43,12 +43,23 @@ export const PRICING = {
 
 export type TierId = 'starter' | 'growth' | 'pro' | 'enterprise'
 
+// Annual billing
+export const ANNUAL_DISCOUNT = 0.20
+export const ANNUAL_DISCOUNT_LABEL = '20% off'
+export const ANNUAL_MONTHS_EQUIVALENT = 9.6
+export const ANNUAL_SAVINGS_LABEL = 'Save 2.4 months per year'
+
+export type BillingCycle = 'monthly' | 'annual'
+
 export interface PricingResult {
   tier: typeof PRICING.tiers[number]
   clients: number
   pricePerClient: number
   subtotal: number
   monthly: number
+  billingCycle: BillingCycle
+  annualTotal: number
+  annualSavings: number
   floorApplied: boolean
   platformFee: number
   isEnterprise: boolean
@@ -56,20 +67,42 @@ export interface PricingResult {
 
 export function calculatePrice(
   clients: number,
-  isFoundingMember = false
+  isFoundingMember = false,
+  billingCycle: BillingCycle = 'monthly'
 ): PricingResult {
   const tier =
-    PRICING.tiers.find(t => clients >= t.minClients && clients <= t.maxClients) ??
+    PRICING.tiers.find(
+      t => clients >= t.minClients && clients <= t.maxClients
+    ) ??
     PRICING.tiers[PRICING.tiers.length - 1]
 
-  const pricePerClient = isFoundingMember
+  const basePrice = isFoundingMember
     ? tier.foundingPricePerClient
     : tier.pricePerClient
 
+  const pricePerClient =
+    billingCycle === 'annual'
+      ? Math.round(basePrice * (1 - ANNUAL_DISCOUNT) * 100) / 100
+      : basePrice
+
   const platformFee = 'platformFee' in tier ? tier.platformFee : 0
-  const subtotal = clients * pricePerClient + platformFee
+
+  const platformFeeDiscounted =
+    billingCycle === 'annual'
+      ? Math.round(platformFee * (1 - ANNUAL_DISCOUNT))
+      : platformFee
+
+  const subtotal = clients * pricePerClient + platformFeeDiscounted
   const monthly = Math.max(subtotal, PRICING.floor)
   const floorApplied = subtotal < PRICING.floor
+
+  const monthlyNoDiscount = Math.max(
+    clients * basePrice + platformFee,
+    PRICING.floor
+  )
+  const annualTotal = billingCycle === 'annual' ? monthly * 12 : 0
+  const annualSavings =
+    billingCycle === 'annual' ? monthlyNoDiscount * 12 - annualTotal : 0
 
   return {
     tier,
@@ -77,8 +110,11 @@ export function calculatePrice(
     pricePerClient,
     subtotal,
     monthly,
+    billingCycle,
+    annualTotal,
+    annualSavings,
     floorApplied,
-    platformFee,
+    platformFee: platformFeeDiscounted,
     isEnterprise: tier.id === 'enterprise',
   }
 }
