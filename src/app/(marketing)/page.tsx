@@ -281,8 +281,12 @@ export default function MarketingPage() {
               Privacy
             </Link>
             <span>·</span>
-            <Link href="#" className="transition-colors hover:text-slate-300">
+            <Link href="/terms" className="transition-colors hover:text-slate-300">
               Terms
+            </Link>
+            <span>·</span>
+            <Link href="/security" className="transition-colors hover:text-slate-300">
+              Security
             </Link>
             <span>·</span>
             <Link href="/sign-in" className="transition-colors hover:text-slate-300">

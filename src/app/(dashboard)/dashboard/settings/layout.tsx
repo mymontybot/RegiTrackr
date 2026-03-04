@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { MainNav } from "@/components/dashboard/MainNav";
 import { UserProfileButton } from "@/components/dashboard/UserProfileButton";
 import { getTenantContext } from "@/lib/services/auth.service";
-import { CreditCard, Users } from "lucide-react";
+import { AlertTriangle, CreditCard, Users } from "lucide-react";
 
 type SettingsLayoutProps = {
   children: React.ReactNode;
@@ -13,6 +13,7 @@ type SettingsLayoutProps = {
 const SETTINGS_NAV = [
   { href: "/dashboard/settings/team", label: "Team & Roles", icon: Users },
   { href: "/dashboard/settings/billing", label: "Billing", icon: CreditCard },
+  { href: "/ai-disclaimer", label: "AI Disclaimer", icon: AlertTriangle },
 ] as const;
 
 export default async function SettingsLayout({ children }: SettingsLayoutProps) {

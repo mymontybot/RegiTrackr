@@ -107,6 +107,10 @@ export default function TermsPage() {
               Terms
             </Link>
             <span>·</span>
+            <Link href="/security" className="transition-colors hover:text-slate-300">
+              Security
+            </Link>
+            <span>·</span>
             <Link href="/sign-in" className="transition-colors hover:text-slate-300">
               Sign in
             </Link>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { RefreshCcw, Sparkles } from "lucide-react";
+import { AlertTriangle, RefreshCcw, Sparkles } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { NarrativeOutput } from "@/lib/validators/narrative.schemas";
 
@@ -161,6 +161,13 @@ export function NarrativeCard({ entityId }: NarrativeCardProps) {
         </div>
       ) : null}
       <p className="mt-3 text-xs text-slate-500">{narrative.disclaimer}</p>
+      <a
+        href="/ai-disclaimer"
+        className="mt-3 inline-flex items-center gap-1 text-xs text-slate-600 transition-colors hover:text-slate-400"
+      >
+        <AlertTriangle className="h-3 w-3" />
+        AI disclaimer: informational only, not tax advice
+      </a>
     </section>
   );
 }
