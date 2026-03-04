@@ -31,8 +31,8 @@ export default async function EditClientPage({ params }: EditClientPageProps) {
   return (
     <main className="mx-auto w-full max-w-3xl space-y-5 p-6">
       <div className="space-y-1">
-        <h1 className="text-2xl font-semibold">Edit Client</h1>
-        <p className="text-sm text-muted-foreground">Update client details for {client.name}.</p>
+        <h1 className="text-2xl font-semibold text-slate-100">Edit Client</h1>
+        <p className="text-sm text-slate-500">Update client details for {client.name}.</p>
       </div>
 
       <ClientEditForm

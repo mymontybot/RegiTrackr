@@ -45,7 +45,7 @@ export function ExportScorecardButton({ clientId }: ExportScorecardButtonProps) 
       type="button"
       onClick={handleExport}
       disabled={isLoading}
-      className="inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm font-medium disabled:opacity-60"
+      className="inline-flex items-center gap-2 rounded-lg border border-[#2A3F66] px-3 py-1.5 text-sm font-medium text-slate-300 transition-colors hover:bg-[#111D35] hover:text-slate-100 disabled:opacity-60"
     >
       {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
       Export PDF

@@ -8,7 +8,9 @@ type CreateEntityInput = {
   clientId: string;
   name: string;
   entityType: EntityType;
-  ein: string;
+  ein?: string;
+  stateOfFormation?: string | null;
+  formationDate?: Date | null;
 };
 
 type UpdateEntityInput = {
@@ -60,7 +62,9 @@ export class EntityService extends BaseService {
         firmId: this.firmId,
         name: input.name,
         entityType: input.entityType,
-        ein: encrypt(input.ein),
+        ein: encrypt(input.ein ?? ""),
+        stateOfFormation: input.stateOfFormation ?? null,
+        formationDate: input.formationDate ?? null,
       },
     });
   }

@@ -2,11 +2,11 @@ import type { NexusBand } from "@prisma/client"
 import { cn } from "@/lib/utils"
 
 const nexusBandClassMap: Record<NexusBand, string> = {
-  SAFE: "bg-green-100 text-green-800",
-  WARNING: "bg-amber-100 text-amber-800",
-  URGENT: "bg-orange-100 text-orange-800",
-  TRIGGERED: "bg-red-100 text-red-800",
-  REGISTERED: "bg-blue-100 text-blue-800",
+  SAFE: "bg-[#052E16] text-[#4ADE80] border border-[#166534]",
+  WARNING: "bg-[#1A1400] text-[#FDE047] border border-[#854D0E]",
+  URGENT: "bg-[#1C0A00] text-[#FB923C] border border-[#9A3412]",
+  TRIGGERED: "bg-[#1C0505] text-[#F87171] border border-[#991B1B]",
+  REGISTERED: "bg-[#0A1628] text-[#60A5FA] border border-[#1E40AF]",
 }
 
 type NexusBadgeProps = {
@@ -22,7 +22,7 @@ export function NexusBadge({ band, className }: NexusBadgeProps) {
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
+        "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium font-mono",
         nexusBandClassMap[band],
         className
       )}

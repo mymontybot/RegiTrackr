@@ -43,8 +43,9 @@ export async function POST(
       const fullCached = await redis.get<{
         highlights?: string[];
       }>(narrativeCacheKey(entityId, latestSummary.inputHash));
-      if (Array.isArray(fullCached?.highlights) && fullCached.highlights[0]) {
-        return NextResponse.json({ digest: fullCached.highlights[0] });
+      const firstHighlight = fullCached?.highlights?.[0];
+      if (firstHighlight && !/Pro required|View plans|Upgrade to view/i.test(firstHighlight)) {
+        return NextResponse.json({ digest: firstHighlight });
       }
     }
 
@@ -52,7 +53,7 @@ export async function POST(
     const digestInputHash = createHash("sha256").update(JSON.stringify(input)).digest("hex");
     const digestKey = `digest:v1:${entityId}:${digestInputHash}`;
     const cachedDigest = await redis.get<{ digest?: string }>(digestKey);
-    if (cachedDigest?.digest) {
+    if (cachedDigest?.digest && !/Pro required|View plans|Upgrade to view/i.test(cachedDigest.digest)) {
       return NextResponse.json({ digest: cachedDigest.digest });
     }
 

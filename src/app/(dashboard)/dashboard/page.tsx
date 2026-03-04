@@ -1,9 +1,10 @@
 import { auth } from "@clerk/nextjs/server"
-import type { BillingTier, NexusBand } from "@prisma/client"
+import type { NexusBand } from "@prisma/client"
 import { redirect } from "next/navigation"
 import { MainNav } from "@/components/dashboard/MainNav"
+import { UserProfileButton } from "@/components/dashboard/UserProfileButton"
+import { AddClientDrawer } from "@/components/clients/AddClientDrawer"
 import { ClientTable } from "@/components/clients/ClientTable"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import prisma from "@/lib/db/prisma"
 import { getTenantContext } from "@/lib/services/auth.service"
 import { ClientService } from "@/lib/services/client.service"
@@ -96,132 +97,132 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   ])
 
   return (
-    <main className="mx-auto w-full max-w-[1400px] space-y-6 p-6">
+    <div className="flex min-h-screen bg-[#060B18]">
       <MainNav role={tenant.role} current="dashboard" />
 
-      <section className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Active Clients
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-semibold">{formatNumber(summary[0])}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Entities
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-semibold">{formatNumber(summary[1])}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Deadlines This Month
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-semibold">{formatNumber(summary[2])}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Active Alerts
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-semibold text-red-600">{formatNumber(summary[3])}</p>
-          </CardContent>
-        </Card>
-      </section>
-
-      <section className="space-y-4">
-        <div className="flex flex-wrap items-end gap-3 rounded-lg border bg-card p-4">
-          <form className="flex flex-1 flex-wrap items-end gap-3">
-            <div className="min-w-[220px] flex-1">
-              <label htmlFor="search" className="mb-1 block text-xs font-medium text-muted-foreground">
-                Search client
-              </label>
-              <input
-                id="search"
-                name="search"
-                defaultValue={search}
-                placeholder="Search by client name"
-                className="w-full rounded-md border bg-background px-3 py-2 text-sm"
-              />
-            </div>
-
-            <div className="min-w-[180px]">
-              <label htmlFor="nexusBand" className="mb-1 block text-xs font-medium text-muted-foreground">
-                Nexus status
-              </label>
-              <select
-                id="nexusBand"
-                name="nexusBand"
-                defaultValue={nexusBand}
-                className="w-full rounded-md border bg-background px-3 py-2 text-sm"
-              >
-                {NEXUS_FILTERS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="min-w-[220px]">
-              <label
-                htmlFor="assignedStaffId"
-                className="mb-1 block text-xs font-medium text-muted-foreground"
-              >
-                Assigned staff
-              </label>
-              <select
-                id="assignedStaffId"
-                name="assignedStaffId"
-                defaultValue={assignedStaffId}
-                className="w-full rounded-md border bg-background px-3 py-2 text-sm"
-              >
-                <option value="">All staff</option>
-                <option value="unassigned">Unassigned clients</option>
-                {staffOptions.map((staff) => (
-                  <option key={staff.id} value={staff.id}>
-                    {staff.name ?? staff.email}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <input type="hidden" name="page" value="1" />
-            <button
-              type="submit"
-              className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
-            >
-              Apply filters
-            </button>
-          </form>
+      <main className="ml-64 flex-1 min-w-0 space-y-6 p-6">
+        <div className="flex items-center justify-between border-b border-[#1A2640] bg-[#0D1526] -mt-6 -mr-6 mb-6 h-14 px-6">
+          <h1 className="text-2xl font-semibold tracking-tight text-slate-100">Dashboard</h1>
+          <div className="flex items-center gap-2">
+            <UserProfileButton />
+          </div>
         </div>
 
-        <ClientTable
-          rows={clients.rows}
-          page={clients.page}
-          totalPages={clients.totalPages}
-          total={clients.total}
-          currentTier={tenant.billingTier as BillingTier}
-          filters={{
-            search: search || undefined,
-            nexusBand,
-            assignedStaffId: assignedStaffId || undefined,
-          }}
-        />
-      </section>
-    </main>
+        <section className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <div
+            className="rounded-xl border border-[#1E2D4A] bg-[#0D1526] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.4),0_1px_2px_rgba(0,0,0,0.3)]"
+            style={{ borderTop: "1px solid rgba(59,130,246,0.4)" }}
+          >
+            <p className="text-xs font-medium uppercase tracking-widest text-slate-500">Total Active Clients</p>
+            <p className="font-mono text-2xl font-bold text-slate-100 mt-1">{formatNumber(summary[0])}</p>
+          </div>
+          <div
+            className="rounded-xl border border-[#1E2D4A] bg-[#0D1526] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.4),0_1px_2px_rgba(0,0,0,0.3)]"
+            style={{ borderTop: "1px solid rgba(59,130,246,0.4)" }}
+          >
+            <p className="text-xs font-medium uppercase tracking-widest text-slate-500">Total Entities</p>
+            <p className="font-mono text-2xl font-bold text-slate-100 mt-1">{formatNumber(summary[1])}</p>
+          </div>
+          <div
+            className="rounded-xl border border-[#1E2D4A] bg-[#0D1526] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.4),0_1px_2px_rgba(0,0,0,0.3)]"
+            style={{ borderTop: "1px solid rgba(59,130,246,0.4)" }}
+          >
+            <p className="text-xs font-medium uppercase tracking-widest text-slate-500">Deadlines This Month</p>
+            <p className="font-mono text-2xl font-bold text-slate-100 mt-1">{formatNumber(summary[2])}</p>
+          </div>
+          <div
+            className="rounded-xl border border-[#1E2D4A] bg-[#0D1526] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.4),0_1px_2px_rgba(0,0,0,0.3)]"
+            style={{ borderTop: "1px solid rgba(59,130,246,0.4)" }}
+          >
+            <p className="text-xs font-medium uppercase tracking-widest text-slate-500">Active Alerts</p>
+            <p className="font-mono text-2xl font-bold text-[#F87171] mt-1">{formatNumber(summary[3])}</p>
+          </div>
+        </section>
+
+        <section className="space-y-4">
+          <div className="flex flex-wrap items-end gap-3 rounded-xl border border-[#1E2D4A] bg-[#0D1526] p-4 shadow-[0_1px_3px_rgba(0,0,0,0.4),0_1px_2px_rgba(0,0,0,0.3)]">
+            <form className="flex flex-1 flex-wrap items-end gap-3">
+              <div className="min-w-[220px] flex-1">
+                <label htmlFor="search" className="mb-1.5 block text-xs font-medium text-slate-400">
+                  Search client
+                </label>
+                <input
+                  id="search"
+                  name="search"
+                  defaultValue={search}
+                  placeholder="Search by client name"
+                  className="w-full rounded-lg border border-[#1E2D4A] bg-[#060B18] px-3 py-2 text-sm text-slate-100 placeholder:text-slate-600 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
+                />
+              </div>
+
+              <div className="min-w-[180px]">
+                <label htmlFor="nexusBand" className="mb-1.5 block text-xs font-medium text-slate-400">
+                  Nexus status
+                </label>
+                <select
+                  id="nexusBand"
+                  name="nexusBand"
+                  defaultValue={nexusBand}
+                  className="w-full rounded-lg border border-[#1E2D4A] bg-[#060B18] px-3 py-2 text-sm text-slate-100 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
+                >
+                  {NEXUS_FILTERS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="min-w-[220px]">
+                <label
+                  htmlFor="assignedStaffId"
+                  className="mb-1.5 block text-xs font-medium text-slate-400"
+                >
+                  Assigned staff
+                </label>
+                <select
+                  id="assignedStaffId"
+                  name="assignedStaffId"
+                  defaultValue={assignedStaffId}
+                  className="w-full rounded-lg border border-[#1E2D4A] bg-[#060B18] px-3 py-2 text-sm text-slate-100 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
+                >
+                  <option value="">All staff</option>
+                  <option value="unassigned">Unassigned clients</option>
+                  {staffOptions.map((staff) => (
+                    <option key={staff.id} value={staff.id}>
+                      {staff.name ?? staff.email}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <input type="hidden" name="page" value="1" />
+              <button
+                type="submit"
+                className="bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg px-4 py-2 text-sm transition-colors"
+              >
+                Apply filters
+              </button>
+            </form>
+          </div>
+
+          <div className="flex justify-end">
+            <AddClientDrawer staffOptions={staffOptions} />
+          </div>
+
+          <ClientTable
+            rows={clients.rows}
+            page={clients.page}
+            totalPages={clients.totalPages}
+            total={clients.total}
+            filters={{
+              search: search || undefined,
+              nexusBand,
+              assignedStaffId: assignedStaffId || undefined,
+            }}
+          />
+        </section>
+      </main>
+    </div>
   )
 }

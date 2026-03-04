@@ -2,11 +2,14 @@ import Link from "next/link";
 import { auth } from "@clerk/nextjs/server";
 import { redirect, notFound } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { MainNav } from "@/components/dashboard/MainNav";
 import { NexusTriggerHistory } from "@/components/dashboard/NexusTriggerHistory";
 import { NarrativeCard } from "@/components/dashboard/NarrativeCard";
-import { NexusBadge } from "@/components/ui/NexusBadge";
 import { ExportScorecardButton } from "@/components/dashboard/ExportScorecardButton";
+import { UserProfileButton } from "@/components/dashboard/UserProfileButton";
+import { ClientEntitiesSection } from "@/components/clients/ClientEntitiesSection";
 import { ClientService } from "@/lib/services/client.service";
+import { getTenantContext } from "@/lib/services/auth.service";
 import { ResourceNotFoundError } from "@/lib/utils/errors";
 
 type ClientDetailPageProps = {
@@ -40,106 +43,97 @@ export default async function ClientDetailPage({ params }: ClientDetailPageProps
     throw error;
   }
 
+  const tenant = await getTenantContext(userId);
   const activeAlerts = client.entities.reduce((count, entity) => count + entity.alerts.length, 0);
   const nextFiling = client.entities
     .flatMap((entity) => entity.filingRecords.map((filing) => ({ ...filing, entityName: entity.name })))
     .sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime())[0];
   return (
-    <main className="mx-auto w-full max-w-5xl space-y-6 p-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <p className="text-sm text-muted-foreground">Client</p>
-          <h1 className="text-2xl font-semibold">{client.name}</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Industry: {client.industry ?? "Not set"}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <ExportScorecardButton clientId={client.id} />
-          <Link href="/dashboard" className="rounded-md border px-3 py-1.5 text-sm font-medium">
-            Back
-          </Link>
-          <Link
-            href={`/dashboard/clients/${client.id}/edit`}
-            className="rounded-md border px-3 py-1.5 text-sm font-medium"
-          >
-            Edit
-          </Link>
-        </div>
-      </div>
-
-      <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Entities</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-semibold">{client.entities.length}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Active Alerts</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-semibold text-red-600">{activeAlerts}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Next Filing Due</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-lg font-semibold">
-              {nextFiling ? formatDate(nextFiling.dueDate) : "No filing scheduled"}
+    <div className="flex min-h-screen bg-[#060B18]">
+      <MainNav role={tenant.role} current="dashboard" />
+      <main className="ml-64 flex-1 min-w-0 space-y-6 p-6">
+        <div className="flex flex-wrap items-center justify-between border-b border-[#1A2640] bg-[#0D1526] -mt-6 -mr-6 mb-6 px-6 py-4 gap-3">
+          <div>
+            <p className="text-sm text-slate-500">Client</p>
+            <h1 className="text-2xl font-semibold tracking-tight text-slate-100">{client.name}</h1>
+            <p className="mt-1 text-sm text-slate-500">
+              Industry: {client.industry ?? "Not set"}
             </p>
-            {nextFiling ? (
-              <p className="text-xs text-muted-foreground">{nextFiling.entityName}</p>
-            ) : null}
-          </CardContent>
-        </Card>
-      </section>
+          </div>
+          <div className="flex items-center gap-2">
+            <ExportScorecardButton clientId={client.id} />
+            <UserProfileButton />
+            <Link
+              href="/dashboard"
+              className="rounded-lg border border-[#2A3F66] px-3 py-1.5 text-sm font-medium text-slate-300 transition-colors hover:bg-[#111D35] hover:text-slate-100"
+            >
+              Back
+            </Link>
+            <Link
+              href={`/dashboard/clients/${client.id}/edit`}
+              className="rounded-lg border border-[#2A3F66] px-3 py-1.5 text-sm font-medium text-slate-300 transition-colors hover:bg-[#111D35] hover:text-slate-100"
+            >
+              Edit
+            </Link>
+          </div>
+        </div>
+
+        <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          <Card
+            className="rounded-xl border border-[#1E2D4A] bg-[#0D1526] shadow-[0_1px_3px_rgba(0,0,0,0.4),0_1px_2px_rgba(0,0,0,0.3)]"
+            style={{ borderTop: "1px solid rgba(59,130,246,0.4)" }}
+          >
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-semibold text-slate-500">Entities</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="font-mono text-2xl font-bold text-slate-100">{client.entities.length}</p>
+            </CardContent>
+          </Card>
+          <Card
+            className="rounded-xl border border-[#1E2D4A] bg-[#0D1526] shadow-[0_1px_3px_rgba(0,0,0,0.4),0_1px_2px_rgba(0,0,0,0.3)]"
+            style={{ borderTop: "1px solid rgba(59,130,246,0.4)" }}
+          >
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-semibold text-slate-500">Active Alerts</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="font-mono text-2xl font-bold text-[#F87171]">{activeAlerts}</p>
+            </CardContent>
+          </Card>
+          <Card
+            className="rounded-xl border border-[#1E2D4A] bg-[#0D1526] shadow-[0_1px_3px_rgba(0,0,0,0.4),0_1px_2px_rgba(0,0,0,0.3)]"
+            style={{ borderTop: "1px solid rgba(59,130,246,0.4)" }}
+          >
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-semibold text-slate-500">Next Filing Due</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="font-mono text-lg font-semibold text-slate-100">
+                {nextFiling ? formatDate(nextFiling.dueDate) : "No filing scheduled"}
+              </p>
+              {nextFiling ? (
+                <p className="text-xs text-slate-500">{nextFiling.entityName}</p>
+              ) : null}
+            </CardContent>
+          </Card>
+        </section>
 
       {client.entities[0] ? <NarrativeCard entityId={client.entities[0].id} /> : null}
 
-      <section className="rounded-lg border bg-card p-4">
-        <h2 className="mb-3 text-sm font-medium">Entities</h2>
-        <div className="space-y-2">
-          {client.entities.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No entities yet.</p>
-          ) : null}
-          {client.entities.map((entity) => {
-            const urgentAlert = entity.alerts[0];
-            const upcomingFiling = entity.filingRecords[0];
-            return (
-              <div
-                key={entity.id}
-                className="flex flex-wrap items-center justify-between gap-2 rounded-md border p-3"
-              >
-                <div>
-                  <p className="text-sm font-medium">{entity.name}</p>
-                  <p className="text-xs text-muted-foreground">{entity.entityType}</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  {urgentAlert ? (
-                    <>
-                      <NexusBadge band={urgentAlert.band} />
-                      <span className="text-xs text-muted-foreground">{urgentAlert.stateCode}</span>
-                    </>
-                  ) : (
-                    <span className="text-xs text-muted-foreground">No active alerts</span>
-                  )}
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  {upcomingFiling ? `Due ${formatDate(upcomingFiling.dueDate)}` : "No filing due date"}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </section>
+      <ClientEntitiesSection
+        clientId={client.id}
+        entities={client.entities.map((e) => ({
+          id: e.id,
+          name: e.name,
+          entityType: e.entityType,
+          alerts: e.alerts.map((a) => ({ band: a.band, stateCode: a.stateCode })),
+          filingRecords: e.filingRecords.map((f) => ({ dueDate: f.dueDate })),
+        }))}
+      />
 
       {client.entities[0] ? <NexusTriggerHistory entityId={client.entities[0].id} /> : null}
-    </main>
+      </main>
+    </div>
   );
 }

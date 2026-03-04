@@ -42,6 +42,8 @@ export type ClientListResult = {
 type CreateClientInput = {
   name: string;
   industry?: string | null;
+  assignedUserId?: string | null;
+  notes?: string | null;
 };
 
 type UpdateClientInput = {
@@ -49,10 +51,12 @@ type UpdateClientInput = {
   industry?: string | null;
 };
 
+/** Returns first sentence of narrative text. Empty string when none or when text is the legacy upgrade prompt. */
 function firstSentence(text: string | null | undefined): string {
-  if (!text) return "No narrative digest yet.";
+  if (!text) return "";
   const trimmed = text.trim();
-  if (!trimmed) return "No narrative digest yet.";
+  if (!trimmed) return "";
+  if (/Pro required|View plans|Upgrade to view/i.test(trimmed)) return "";
   const sentence = trimmed.match(/[^.!?]+[.!?]/)?.[0] ?? trimmed;
   return sentence.trim();
 }
@@ -99,7 +103,16 @@ export class ClientService extends BaseService {
         firmId: this.firmId,
         name: input.name,
         industry: input.industry ?? null,
+        assignedUserId: input.assignedUserId ?? null,
+        notes: input.notes ?? null,
       },
+    });
+  }
+
+  async incrementFirmActiveClientCount(): Promise<void> {
+    await this.getPrisma().firm.update({
+      where: { id: this.firmId },
+      data: { activeClientCount: { increment: 1 } },
     });
   }
 

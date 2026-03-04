@@ -32,11 +32,11 @@ function formatMonthYear(value: { year: number; month: number } | null): string 
 
 function HeaderWithTooltip({ label, tooltip }: { label: string; tooltip: string }) {
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center gap-1 text-slate-500">
       <span>{label}</span>
       <Tooltip>
         <TooltipTrigger asChild>
-          <button type="button" className="text-muted-foreground">
+          <button type="button" className="text-slate-500 hover:text-slate-400">
             <CircleHelp className="h-3.5 w-3.5" />
           </button>
         </TooltipTrigger>
@@ -83,68 +83,71 @@ export function NexusTriggerHistory({ entityId }: NexusTriggerHistoryProps) {
   };
 
   return (
-    <section className="rounded-lg border bg-card p-4">
+    <section className="rounded-xl border border-[#1E2D4A] bg-[#0D1526] p-4 shadow-[0_1px_3px_rgba(0,0,0,0.4),0_1px_2px_rgba(0,0,0,0.3)]">
       <button
         type="button"
         onClick={toggle}
-        className="flex w-full items-center justify-between text-left"
+        className="flex w-full items-center justify-between text-left text-slate-100"
       >
         <h2 className="text-sm font-semibold">Nexus Trigger History</h2>
-        {open ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+        {open ? <ChevronDown className="h-4 w-4 text-slate-400" /> : <ChevronRight className="h-4 w-4 text-slate-400" />}
       </button>
 
       {open ? (
         <div className="mt-3">
           {isLoading ? (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2 text-sm text-slate-500">
               <Loader2 className="h-4 w-4 animate-spin" />
               Loading trigger history...
             </div>
           ) : null}
-          {error ? <p className="text-sm text-red-600">{error}</p> : null}
+          {error ? <p className="text-sm text-red-400">{error}</p> : null}
           {!isLoading && !error ? (
-            <Table>
+            <Table className="w-full border-collapse text-sm">
               <TableHeader>
-                <TableRow>
-                  <TableHead>State</TableHead>
-                  <TableHead>
+                <TableRow className="border-b border-[#1A2640]">
+                  <TableHead className="px-4 py-3 text-left text-xs font-medium uppercase tracking-widest text-slate-500">State</TableHead>
+                  <TableHead className="px-4 py-3 text-left text-xs font-medium uppercase tracking-widest text-slate-500">
                     <HeaderWithTooltip
                       label="First Warning"
                       tooltip="First month where cumulative threshold reached at least 70%."
                     />
                   </TableHead>
-                  <TableHead>
+                  <TableHead className="px-4 py-3 text-left text-xs font-medium uppercase tracking-widest text-slate-500">
                     <HeaderWithTooltip
                       label="First Urgent"
                       tooltip="First month where cumulative threshold reached at least 90%."
                     />
                   </TableHead>
-                  <TableHead>
+                  <TableHead className="px-4 py-3 text-left text-xs font-medium uppercase tracking-widest text-slate-500">
                     <HeaderWithTooltip
                       label="First Triggered"
                       tooltip="First month where cumulative threshold reached at least 100%."
                     />
                   </TableHead>
-                  <TableHead>Note</TableHead>
+                  <TableHead className="px-4 py-3 text-left text-xs font-medium uppercase tracking-widest text-slate-500">Note</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {sortedRows.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={5} className="py-6 text-center text-muted-foreground">
+                  <TableRow className="border-b border-[#1A2640]">
+                    <TableCell colSpan={5} className="py-6 text-center text-slate-500">
                       No trigger history available.
                     </TableCell>
                   </TableRow>
                 ) : null}
-                {sortedRows.map((row) => (
-                  <TableRow key={row.stateCode}>
-                    <TableCell className="font-medium">{row.stateCode}</TableCell>
-                    <TableCell>{formatMonthYear(row.firstWarningDate)}</TableCell>
-                    <TableCell>{formatMonthYear(row.firstUrgentDate)}</TableCell>
-                    <TableCell>{formatMonthYear(row.firstTriggeredDate)}</TableCell>
-                    <TableCell>
+                {sortedRows.map((row, index) => (
+                  <TableRow
+                    key={row.stateCode}
+                    className={`border-b border-[#1A2640] transition-colors hover:bg-[#111D35] ${index % 2 === 1 ? "bg-[#0A1020]" : ""}`}
+                  >
+                    <TableCell className="px-4 py-2.5 font-mono font-medium text-slate-100">{row.stateCode}</TableCell>
+                    <TableCell className="px-4 py-2.5 font-mono text-xs text-slate-400">{formatMonthYear(row.firstWarningDate)}</TableCell>
+                    <TableCell className="px-4 py-2.5 font-mono text-xs text-slate-400">{formatMonthYear(row.firstUrgentDate)}</TableCell>
+                    <TableCell className="px-4 py-2.5 font-mono text-xs text-slate-400">{formatMonthYear(row.firstTriggeredDate)}</TableCell>
+                    <TableCell className="px-4 py-2.5">
                       {row.dataQualityNote ? (
-                        <p className="text-xs text-amber-700">{row.dataQualityNote}</p>
+                        <p className="text-xs text-[#FDE047]">{row.dataQualityNote}</p>
                       ) : (
                         "—"
                       )}

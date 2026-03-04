@@ -80,7 +80,7 @@ export async function POST(req: Request) {
       clientId,
       name,
       entityType,
-      ein: ein || undefined,
+      ...(ein ? { ein } : {}),
       stateOfFormation,
       formationDate,
     });

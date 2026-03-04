@@ -127,10 +127,10 @@ export function AlertsTable({ alerts, tab }: AlertsTableProps) {
   return (
     <div className="space-y-4">
       {tab === "active" ? (
-        <div className="rounded-lg border bg-card p-4">
+        <div className="rounded-xl border border-[#1E2D4A] bg-[#0D1526] p-4 shadow-[0_1px_3px_rgba(0,0,0,0.4),0_1px_2px_rgba(0,0,0,0.3)]">
           <div className="flex flex-wrap items-end gap-3">
             <div className="min-w-[280px] flex-1">
-              <label htmlFor="bulk-note" className="mb-1 block text-xs font-medium text-muted-foreground">
+              <label htmlFor="bulk-note" className="mb-1.5 block text-xs font-medium text-slate-400">
                 Bulk snooze note
               </label>
               <input
@@ -138,18 +138,18 @@ export function AlertsTable({ alerts, tab }: AlertsTableProps) {
                 value={note}
                 onChange={(event) => setNote(event.target.value)}
                 placeholder="Required note for selected alerts"
-                className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                className="w-full rounded-lg border border-[#1E2D4A] bg-[#060B18] px-3 py-2 text-sm text-slate-100 placeholder:text-slate-600 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
               />
             </div>
             <div className="w-36">
-              <label htmlFor="bulk-days" className="mb-1 block text-xs font-medium text-muted-foreground">
+              <label htmlFor="bulk-days" className="mb-1.5 block text-xs font-medium text-slate-400">
                 Snooze days
               </label>
               <select
                 id="bulk-days"
                 value={days}
                 onChange={(event) => setDays(Number(event.target.value))}
-                className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                className="w-full rounded-lg border border-[#1E2D4A] bg-[#060B18] px-3 py-2 text-sm text-slate-100 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
               >
                 <option value={7}>7</option>
                 <option value={14}>14</option>
@@ -161,21 +161,21 @@ export function AlertsTable({ alerts, tab }: AlertsTableProps) {
               type="button"
               disabled={isPending}
               onClick={bulkSnooze}
-              className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-60"
+              className="bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg px-4 py-2 text-sm transition-colors disabled:opacity-60"
             >
               {isPending ? "Snoozing..." : `Bulk snooze (${selectedIds.length})`}
             </button>
           </div>
-          {error ? <p className="mt-2 text-sm text-red-600">{error}</p> : null}
+          {error ? <p className="mt-2 text-sm text-red-400">{error}</p> : null}
         </div>
       ) : null}
 
-      <div className="rounded-lg border bg-card">
-        <Table>
+      <div className="overflow-hidden rounded-xl border border-[#1E2D4A] bg-[#0D1526] shadow-[0_1px_3px_rgba(0,0,0,0.4),0_1px_2px_rgba(0,0,0,0.3)]">
+        <Table className="w-full border-collapse text-sm">
           <TableHeader>
-            <TableRow>
+            <TableRow className="border-b border-[#1A2640] hover:bg-transparent">
               {tab === "active" ? (
-                <TableHead className="w-10">
+                <TableHead className="w-10 px-4 py-3 text-left text-xs font-medium uppercase tracking-widest text-slate-500">
                   <input
                     type="checkbox"
                     checked={allSelected}
@@ -184,29 +184,32 @@ export function AlertsTable({ alerts, tab }: AlertsTableProps) {
                   />
                 </TableHead>
               ) : null}
-              <TableHead>Client</TableHead>
-              <TableHead>Entity</TableHead>
-              <TableHead>State</TableHead>
-              <TableHead>Alert Type</TableHead>
-              <TableHead>Urgency</TableHead>
-              <TableHead>Created</TableHead>
-              {tab === "snoozed" ? <TableHead>Snoozed Until</TableHead> : null}
-              <TableHead>Email History</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead className="px-4 py-3 text-left text-xs font-medium uppercase tracking-widest text-slate-500">Client</TableHead>
+              <TableHead className="px-4 py-3 text-left text-xs font-medium uppercase tracking-widest text-slate-500">Entity</TableHead>
+              <TableHead className="px-4 py-3 text-left text-xs font-medium uppercase tracking-widest text-slate-500">State</TableHead>
+              <TableHead className="px-4 py-3 text-left text-xs font-medium uppercase tracking-widest text-slate-500">Alert Type</TableHead>
+              <TableHead className="px-4 py-3 text-left text-xs font-medium uppercase tracking-widest text-slate-500">Urgency</TableHead>
+              <TableHead className="px-4 py-3 text-left text-xs font-medium uppercase tracking-widest text-slate-500">Created</TableHead>
+              {tab === "snoozed" ? <TableHead className="px-4 py-3 text-left text-xs font-medium uppercase tracking-widest text-slate-500">Snoozed Until</TableHead> : null}
+              <TableHead className="px-4 py-3 text-left text-xs font-medium uppercase tracking-widest text-slate-500">Email History</TableHead>
+              <TableHead className="px-4 py-3 text-right text-xs font-medium uppercase tracking-widest text-slate-500">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {alerts.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={tab === "active" ? 10 : 9} className="py-8 text-center text-muted-foreground">
+              <TableRow className="border-b border-[#1A2640] hover:bg-transparent">
+                <TableCell colSpan={tab === "active" ? 10 : 9} className="py-16 text-center text-slate-500">
                   No alerts found for current filters.
                 </TableCell>
               </TableRow>
             ) : null}
-            {alerts.map((alert) => (
-              <TableRow key={alert.id}>
+            {alerts.map((alert, index) => (
+              <TableRow
+                key={alert.id}
+                className={`border-b border-[#1A2640] transition-colors hover:bg-[#111D35] ${index % 2 === 1 ? "bg-[#0A1020]" : ""}`}
+              >
                 {tab === "active" ? (
-                  <TableCell>
+                  <TableCell className="px-4 py-2.5">
                     <input
                       type="checkbox"
                       checked={selectedIds.includes(alert.id)}
@@ -215,26 +218,26 @@ export function AlertsTable({ alerts, tab }: AlertsTableProps) {
                     />
                   </TableCell>
                 ) : null}
-                <TableCell className="font-medium">{alert.clientName}</TableCell>
-                <TableCell>{alert.entityName}</TableCell>
-                <TableCell>{alert.stateCode}</TableCell>
-                <TableCell>{alert.alertType}</TableCell>
-                <TableCell>
+                <TableCell className="px-4 py-2.5 font-medium text-slate-100">{alert.clientName}</TableCell>
+                <TableCell className="px-4 py-2.5 text-slate-300">{alert.entityName}</TableCell>
+                <TableCell className="px-4 py-2.5 font-mono text-slate-300">{alert.stateCode}</TableCell>
+                <TableCell className="px-4 py-2.5 text-slate-300">{alert.alertType}</TableCell>
+                <TableCell className="px-4 py-2.5">
                   <NexusBadge band={alert.band} />
                 </TableCell>
-                <TableCell>{formatDateTime(new Date(alert.createdAt))}</TableCell>
+                <TableCell className="px-4 py-2.5 font-mono text-xs text-slate-400">{formatDateTime(new Date(alert.createdAt))}</TableCell>
                 {tab === "snoozed" ? (
-                  <TableCell>{formatDateTime(alert.snoozedUntil ? new Date(alert.snoozedUntil) : null)}</TableCell>
+                  <TableCell className="px-4 py-2.5 font-mono text-xs text-slate-400">{formatDateTime(alert.snoozedUntil ? new Date(alert.snoozedUntil) : null)}</TableCell>
                 ) : null}
-                <TableCell>{formatDateTime(alert.lastEmailSentAt ? new Date(alert.lastEmailSentAt) : null)}</TableCell>
-                <TableCell className="text-right">
+                <TableCell className="px-4 py-2.5 font-mono text-xs text-slate-400">{formatDateTime(alert.lastEmailSentAt ? new Date(alert.lastEmailSentAt) : null)}</TableCell>
+                <TableCell className="px-4 py-2.5 text-right">
                   <div className="flex justify-end gap-2">
                     {tab === "active" ? (
                       <button
                         type="button"
                         disabled={isPending && actionPendingId === alert.id}
                         onClick={() => runRowAction(alert.id, "snooze")}
-                        className="rounded-md border px-2.5 py-1 text-xs font-medium disabled:opacity-60"
+                        className="rounded-lg border border-[#2A3F66] px-3 py-1.5 text-xs font-medium text-slate-300 transition-colors hover:bg-[#111D35] hover:text-slate-100 disabled:opacity-60"
                       >
                         Snooze
                       </button>
@@ -243,7 +246,7 @@ export function AlertsTable({ alerts, tab }: AlertsTableProps) {
                         type="button"
                         disabled={isPending && actionPendingId === alert.id}
                         onClick={() => runRowAction(alert.id, "unsnooze")}
-                        className="rounded-md border px-2.5 py-1 text-xs font-medium disabled:opacity-60"
+                        className="rounded-lg border border-[#2A3F66] px-3 py-1.5 text-xs font-medium text-slate-300 transition-colors hover:bg-[#111D35] hover:text-slate-100 disabled:opacity-60"
                       >
                         Unsnooze
                       </button>
@@ -253,7 +256,7 @@ export function AlertsTable({ alerts, tab }: AlertsTableProps) {
                         type="button"
                         disabled={isPending && actionPendingId === alert.id}
                         onClick={() => runRowAction(alert.id, "read")}
-                        className="rounded-md border px-2.5 py-1 text-xs font-medium disabled:opacity-60"
+                        className="rounded-lg border border-[#2A3F66] px-3 py-1.5 text-xs font-medium text-slate-300 transition-colors hover:bg-[#111D35] hover:text-slate-100 disabled:opacity-60"
                       >
                         Mark read
                       </button>

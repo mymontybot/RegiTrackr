@@ -1,17 +1,31 @@
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@prisma/client";
+import pg from "pg";
 import { seedStateThresholds } from "./state_thresholds";
 import { seedStateFilingRules } from "./state_filing_rules";
 import { seedPublicHolidays } from "./public_holidays";
 import { seedDevFixtures } from "./dev_fixtures";
 
-const connectionString = process.env.DATABASE_URL;
-if (!connectionString) {
+const rawConnectionString = process.env.DATABASE_URL;
+if (!rawConnectionString) {
   throw new Error("Missing DATABASE_URL for seed runner");
 }
 
+// Strip sslmode/uselibpqcompat from the URL so the pg library doesn't override
+// our explicit ssl config. pg-connection-string now treats sslmode=require as
+// verify-full which fails against Supabase's pooler cert chain on macOS.
+const connUrl = new URL(rawConnectionString);
+connUrl.searchParams.delete("sslmode");
+connUrl.searchParams.delete("uselibpqcompat");
+const connectionString = connUrl.toString();
+
+const pool = new pg.Pool({
+  connectionString,
+  ssl: { rejectUnauthorized: false },
+});
+
 const prisma = new PrismaClient({
-  adapter: new PrismaPg({ connectionString }),
+  adapter: new PrismaPg(pool),
 });
 
 async function main() {

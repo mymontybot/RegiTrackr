@@ -384,5 +384,31 @@ export async function seedDevFixtures(prisma: PrismaClient): Promise<void> {
     throw new Error("Failed to create Washington registration fixture");
   }
 
+  // Optional: link your Clerk user to the fixture firm so you see this data when you log in.
+  const linkClerkId = process.env.SEED_LINK_CLERK_USER_ID?.trim();
+  if (linkClerkId) {
+    const existing = await prisma.user.findUnique({ where: { clerkUserId: linkClerkId } });
+    if (existing) {
+      await prisma.user.update({
+        where: { id: existing.id },
+        data: { firmId: firm.id, role: "FIRM_ADMIN" },
+      });
+      console.log(`[seed] Linked Clerk user ${linkClerkId} to Hartwell firm — you will see fixture data when you log in.`);
+    } else {
+      await prisma.user.create({
+        data: {
+          clerkUserId: linkClerkId,
+          firmId: firm.id,
+          email: "you@example.com",
+          name: "Dev User",
+          role: "FIRM_ADMIN",
+        },
+      });
+      console.log(`[seed] Created User for Clerk ${linkClerkId} in Hartwell firm — log in with that account to see fixture data.`);
+    }
+  } else {
+    console.log("[seed] To see this data in the app, add SEED_LINK_CLERK_USER_ID=your_clerk_user_id to your .env file and run the seed again.");
+  }
+
   console.log("Dev fixtures created — Hartwell & Associates CPA with 3 clients");
 }

@@ -77,10 +77,10 @@ export function CsvImportDialog() {
       <DialogTrigger asChild>
         <Button>Import Revenue CSV</Button>
       </DialogTrigger>
-      <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-3xl">
+      <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-3xl border-[#1E2D4A] bg-[#0D1526]">
         <DialogHeader>
-          <DialogTitle>CSV Import</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-slate-100">CSV Import</DialogTitle>
+          <DialogDescription className="text-slate-400">
             Upload a CSV file with revenue entries (up to 10,000 rows).
           </DialogDescription>
         </DialogHeader>
@@ -93,6 +93,7 @@ export function CsvImportDialog() {
               onClick={() => {
                 window.location.href = "/api/revenue-entries/template";
               }}
+              className="border-[#2A3F66] text-slate-300 hover:bg-[#111D35] hover:text-slate-100"
             >
               Download Template
             </Button>
@@ -105,51 +106,52 @@ export function CsvImportDialog() {
               const selected = event.target.files?.[0] ?? null;
               setFile(selected);
             }}
+            className="border-[#1E2D4A] bg-[#060B18] text-slate-100 file:border-0 file:bg-[#111D35] file:text-slate-300"
           />
 
           {loading ? (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-r-transparent" />
+            <div className="flex items-center gap-2 text-sm text-slate-400">
+              <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-slate-500 border-r-transparent" />
               Import in progress...
             </div>
           ) : null}
 
           {result?.message ? (
-            <Alert variant={result.success ? "default" : "destructive"}>
-              <AlertTitle>{result.success ? "Import complete" : "Import failed"}</AlertTitle>
-              <AlertDescription>{result.message}</AlertDescription>
+            <Alert variant={result.success ? "default" : "destructive"} className={result.success ? "border-[#1A2640] bg-[#111D35] text-slate-300" : "border-red-900/50 bg-red-950/30 text-red-400"}>
+              <AlertTitle className={result.success ? "text-slate-100" : "text-red-400"}>{result.success ? "Import complete" : "Import failed"}</AlertTitle>
+              <AlertDescription className={result.success ? "text-slate-400" : "text-red-300"}>{result.message}</AlertDescription>
             </Alert>
           ) : null}
 
           {successMessage ? (
-            <Alert>
-              <AlertTitle>Success</AlertTitle>
-              <AlertDescription>
-                {successMessage} in {result?.processingTimeMs} ms.
+            <Alert className="border-[#1A2640] bg-[#111D35]">
+              <AlertTitle className="text-slate-100">Success</AlertTitle>
+              <AlertDescription className="text-slate-400">
+                {successMessage} in <span className="font-mono">{result?.processingTimeMs}</span> ms.
               </AlertDescription>
             </Alert>
           ) : null}
 
           {hasErrors ? (
             <div className="space-y-2">
-              <h3 className="text-sm font-medium">Validation Errors ({result?.errors.length})</h3>
-              <div className="rounded-md border">
+              <h3 className="text-sm font-medium text-slate-200">Validation Errors (<span className="font-mono">{result?.errors.length}</span>)</h3>
+              <div className="rounded-lg border border-[#1E2D4A]">
                 <Table>
                   <TableHeader>
-                    <TableRow>
-                      <TableHead>Row</TableHead>
-                      <TableHead>Field</TableHead>
-                      <TableHead>Message</TableHead>
-                      <TableHead>Value</TableHead>
+                    <TableRow className="border-b border-[#1A2640] hover:bg-transparent">
+                      <TableHead className="text-slate-500">Row</TableHead>
+                      <TableHead className="text-slate-500">Field</TableHead>
+                      <TableHead className="text-slate-500">Message</TableHead>
+                      <TableHead className="text-slate-500">Value</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {result?.errors.map((error, index) => (
-                      <TableRow key={`${error.rowNumber}-${error.field}-${index}`}>
-                        <TableCell>{error.rowNumber}</TableCell>
-                        <TableCell>{error.field}</TableCell>
-                        <TableCell>{error.message}</TableCell>
-                        <TableCell>{error.value ?? "-"}</TableCell>
+                      <TableRow key={`${error.rowNumber}-${error.field}-${index}`} className="border-b border-[#1A2640] bg-[#0A1020] even:bg-[#0A1020] hover:bg-[#111D35]">
+                        <TableCell className="py-2.5 font-mono text-slate-300">{error.rowNumber}</TableCell>
+                        <TableCell className="py-2.5 text-slate-300">{error.field}</TableCell>
+                        <TableCell className="py-2.5 text-slate-300">{error.message}</TableCell>
+                        <TableCell className="py-2.5 text-slate-300">{error.value ?? "-"}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -160,10 +162,10 @@ export function CsvImportDialog() {
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => setOpen(false)}>
+          <Button variant="outline" onClick={() => setOpen(false)} className="border-[#2A3F66] text-slate-300 hover:bg-[#111D35] hover:text-slate-100">
             Close
           </Button>
-          <Button onClick={handleImport} disabled={!file || loading}>
+          <Button onClick={handleImport} disabled={!file || loading} className="bg-blue-500 hover:bg-blue-600 text-white">
             Import CSV
           </Button>
         </DialogFooter>

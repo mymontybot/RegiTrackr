@@ -22,8 +22,15 @@ enum BillingStatus {
 
 enum UserRole {
   FIRM_ADMIN
+  MANAGER
   STAFF_ACCOUNTANT
   READ_ONLY
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
 }
 
 enum EntityType {
@@ -111,6 +118,7 @@ model Firm {
   updatedAt            DateTime @updatedAt
 
   users               User[]
+  invitations         Invitation[]
   clients             Client[]
   entities            Entity[]
   revenueEntries      RevenueEntry[]
@@ -136,6 +144,7 @@ model User {
   updatedAt   DateTime @updatedAt
 
   firm                Firm                 @relation(fields: [firmId], references: [id], onDelete: Cascade)
+  invitationsSent     Invitation[]         @relation("InvitationInvitedBy")
   enteredRevenue      RevenueEntry[]       @relation("RevenueEntryEnteredBy")
   assignedClients     Client[]             @relation("ClientAssignedUser")
   assignedFilings     FilingRecord[]       @relation("FilingRecordAssignedUser")
@@ -148,13 +157,14 @@ model User {
 }
 
 model Client {
-  id        String   @id @default(cuid())
-  firmId    String
-  assignedUserId String?
-  name      String
-  industry  String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id              String   @id @default(cuid())
+  firmId          String
+  assignedUserId  String?
+  name            String
+  industry        String?
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   firm              Firm              @relation(fields: [firmId], references: [id], onDelete: Cascade)
   assignedUser      User?             @relation("ClientAssignedUser", fields: [assignedUserId], references: [id], onDelete: SetNull)
@@ -169,14 +179,16 @@ model Client {
 }
 
 model Entity {
-  id         String   @id @default(cuid())
-  clientId   String
-  firmId     String
-  name       String
-  entityType EntityType
-  ein        String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id                String    @id @default(cuid())
+  clientId          String
+  firmId            String
+  name              String
+  entityType        EntityType
+  ein               String
+  stateOfFormation  String?
+  formationDate     DateTime? @db.Date
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 
   client             Client            @relation(fields: [clientId], references: [id], onDelete: Cascade)
   firm               Firm              @relation(fields: [firmId], references: [id], onDelete: Cascade)
@@ -419,6 +431,26 @@ model PortalInvitation {
   @@index([firmId, clientId])
 }
 
+model Invitation {
+  id           String           @id @default(cuid())
+  firmId       String
+  email        String
+  role         UserRole
+  invitedById  String
+  token        String           @unique
+  status       InvitationStatus @default(PENDING)
+  expiresAt    DateTime
+  acceptedAt   DateTime?
+  createdAt    DateTime         @default(now())
+
+  firm      Firm @relation(fields: [firmId], references: [id], onDelete: Cascade)
+  invitedBy User @relation("InvitationInvitedBy", fields: [invitedById], references: [id], onDelete: Cascade)
+
+  @@index([firmId])
+  @@index([firmId, email])
+  @@index([token])
+}
+
 model Notification {
   id               String    @id @default(cuid())
   firmId           String
@@ -445,4 +477,11 @@ model Notification {
   @@index([clientId])
   @@index([entityId])
   @@index([filingRecordId])
+}
+
+model WaitlistEntry {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  source    String   @default("landing_page")
+  createdAt DateTime @default(now())
 }

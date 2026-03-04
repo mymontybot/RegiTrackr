@@ -3,10 +3,8 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import type { BillingTier, NexusBand } from "@prisma/client"
+import type { NexusBand } from "@prisma/client"
 import type { ClientListRow } from "@/lib/services/client.service"
-import { PlanGate } from "@/components/ui/PlanGate"
-import { Skeleton } from "@/components/ui/skeleton"
 import { NexusBadge } from "@/components/ui/NexusBadge"
 import {
   Table,
@@ -22,7 +20,6 @@ type ClientTableProps = {
   page: number
   totalPages: number
   total: number
-  currentTier: BillingTier
   filters: {
     search?: string
     nexusBand?: NexusBand | "ALL"
@@ -31,15 +28,14 @@ type ClientTableProps = {
 }
 
 function DigestCell({ entityId }: { entityId: string | null }) {
-  const [loading, setLoading] = useState(Boolean(entityId))
+  const [loading, setLoading] = useState(true)
   const [digest, setDigest] = useState<string | null>(null)
-  const [hidden, setHidden] = useState(false)
 
   useEffect(() => {
     let cancelled = false
     if (!entityId) {
       setLoading(false)
-      setHidden(true)
+      setDigest(null)
       return
     }
 
@@ -50,19 +46,19 @@ function DigestCell({ entityId }: { entityId: string | null }) {
           headers: { "Content-Type": "application/json" },
         })
         if (!response.ok) {
-          if (!cancelled) setHidden(true)
+          if (!cancelled) setDigest(null)
           return
         }
         const payload = (await response.json()) as { digest?: string; success?: false }
         if (!cancelled) {
           if (!payload.digest) {
-            setHidden(true)
+            setDigest(null)
             return
           }
           setDigest(payload.digest)
         }
       } catch {
-        if (!cancelled) setHidden(true)
+        if (!cancelled) setDigest(null)
       } finally {
         if (!cancelled) setLoading(false)
       }
@@ -74,11 +70,11 @@ function DigestCell({ entityId }: { entityId: string | null }) {
     }
   }, [entityId])
 
-  if (hidden) return null
-  if (loading) return <Skeleton className="h-4 w-24" />
-  if (!digest) return null
+  if (loading || !digest) {
+    return <p className="truncate text-sm italic text-slate-400">Generating...</p>
+  }
 
-  return <p className="truncate text-sm italic text-muted-foreground">{digest}</p>
+  return <p className="truncate text-sm italic text-slate-400">{digest}</p>
 }
 
 function formatDate(date: Date | null): string {
@@ -116,40 +112,42 @@ export function ClientTable({
   page,
   totalPages,
   total,
-  currentTier,
   filters,
 }: ClientTableProps) {
   const router = useRouter()
 
   return (
     <div className="space-y-4">
-      <div className="rounded-lg border bg-card">
-        <Table>
+      <div className="rounded-xl border border-[#1E2D4A] bg-[#0D1526] shadow-[0_1px_3px_rgba(0,0,0,0.4),0_1px_2px_rgba(0,0,0,0.3)]">
+        <Table className="w-full border-collapse text-sm">
           <TableHeader>
-            <TableRow>
-              <TableHead>Client Name</TableHead>
-              <TableHead>Entities</TableHead>
-              <TableHead>Most Urgent Nexus State</TableHead>
-              <TableHead>Active Alerts</TableHead>
-              <TableHead>Next Filing Due</TableHead>
-              <TableHead>Assigned Staff</TableHead>
-              <TableHead>AI Narrative Digest</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+            <TableRow className="border-b border-[#1A2640]">
+              <TableHead className="px-4 py-3 text-left text-xs font-medium uppercase tracking-widest text-slate-500">Client Name</TableHead>
+              <TableHead className="px-4 py-3 text-left text-xs font-medium uppercase tracking-widest text-slate-500">Entities</TableHead>
+              <TableHead className="px-4 py-3 text-left text-xs font-medium uppercase tracking-widest text-slate-500">Most Urgent Nexus State</TableHead>
+              <TableHead className="px-4 py-3 text-left text-xs font-medium uppercase tracking-widest text-slate-500">Active Alerts</TableHead>
+              <TableHead className="px-4 py-3 text-left text-xs font-medium uppercase tracking-widest text-slate-500">Next Filing Due</TableHead>
+              <TableHead className="px-4 py-3 text-left text-xs font-medium uppercase tracking-widest text-slate-500">Assigned Staff</TableHead>
+              <TableHead className="px-4 py-3 text-left text-xs font-medium uppercase tracking-widest text-slate-500">AI Narrative Digest</TableHead>
+              <TableHead className="px-4 py-3 text-right text-xs font-medium uppercase tracking-widest text-slate-500">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {rows.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="py-8 text-center text-muted-foreground">
-                  No clients match the current filters.
+                <TableCell colSpan={8} className="py-16 text-center">
+                  <div className="flex flex-col items-center justify-center">
+                    <p className="text-sm font-medium text-slate-500">No clients match the current filters.</p>
+                    <p className="mt-1 text-xs text-slate-600">Try adjusting your search or filter criteria.</p>
+                  </div>
                 </TableCell>
               </TableRow>
             ) : null}
 
-            {rows.map((row) => (
+            {rows.map((row, idx) => (
               <TableRow
                 key={row.clientId}
-                className="cursor-pointer"
+                className={`cursor-pointer border-b border-[#1A2640] transition-colors hover:bg-[#111D35] ${idx % 2 === 1 ? "bg-[#0A1020]" : ""}`}
                 onClick={() => router.push(`/dashboard/clients/${row.clientId}`)}
                 onKeyDown={(event) => {
                   if (event.key === "Enter" || event.key === " ") {
@@ -159,53 +157,46 @@ export function ClientTable({
                 }}
                 tabIndex={0}
               >
-                <TableCell className="font-medium">{row.clientName}</TableCell>
-                <TableCell>{row.entitiesCount}</TableCell>
-                <TableCell>
+                <TableCell className="px-4 py-2.5 text-sm font-medium text-slate-100">{row.clientName}</TableCell>
+                <TableCell className="px-4 py-2.5 text-sm font-mono text-slate-300">{row.entitiesCount}</TableCell>
+                <TableCell className="px-4 py-2.5 text-sm text-slate-300">
                   <div className="flex items-center gap-2">
                     <NexusBadge band={row.mostUrgentNexusState.band} />
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-xs text-slate-500">
                       {row.mostUrgentNexusState.stateCode ?? "No state"}
                     </span>
                   </div>
                 </TableCell>
-                <TableCell>{row.activeAlertsCount}</TableCell>
-                <TableCell>
+                <TableCell className="px-4 py-2.5 text-sm font-mono text-slate-300">{row.activeAlertsCount}</TableCell>
+                <TableCell className="px-4 py-2.5 text-sm text-slate-300">
                   <div className="space-y-0.5">
-                    <p>{formatDate(row.nextFilingDue.date)}</p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="font-mono text-xs text-slate-400">{formatDate(row.nextFilingDue.date)}</p>
+                    <p className="text-xs text-slate-500">
                       {formatDaysUntil(row.nextFilingDue.daysUntil)}
                     </p>
                   </div>
                 </TableCell>
-                <TableCell>
+                <TableCell className="px-4 py-2.5 text-sm text-slate-300">
                   {row.assignedStaff ? row.assignedStaff.name ?? row.assignedStaff.email : "Unassigned"}
                 </TableCell>
-                <TableCell className="max-w-sm whitespace-normal text-sm text-muted-foreground">
-                  <PlanGate
-                    currentTier={currentTier}
-                    requiredTier="PRO"
-                    title="Pro required"
-                    description="Upgrade to view AI digest."
-                  >
-                    <DigestCell entityId={row.digestEntityId} />
-                  </PlanGate>
+                <TableCell className="max-w-sm whitespace-normal px-4 py-2.5 text-sm text-slate-400">
+                  <DigestCell entityId={row.digestEntityId} />
                 </TableCell>
                 <TableCell
-                  className="text-right"
+                  className="px-4 py-2.5 text-right"
                   onClick={(event) => event.stopPropagation()}
                   onKeyDown={(event) => event.stopPropagation()}
                 >
                   <div className="flex justify-end gap-2">
                     <Link
                       href={`/dashboard/clients/${row.clientId}`}
-                      className="rounded-md border px-2.5 py-1 text-xs font-medium"
+                      className="rounded-lg border border-[#2A3F66] px-4 py-2 text-sm font-medium text-slate-300 transition-colors hover:bg-[#111D35] hover:text-slate-100"
                     >
                       View
                     </Link>
                     <Link
                       href={`/dashboard/clients/${row.clientId}/edit`}
-                      className="rounded-md border px-2.5 py-1 text-xs font-medium"
+                      className="rounded-lg border border-[#2A3F66] px-4 py-2 text-sm font-medium text-slate-300 transition-colors hover:bg-[#111D35] hover:text-slate-100"
                     >
                       Edit
                     </Link>
@@ -218,21 +209,21 @@ export function ClientTable({
       </div>
 
       <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-slate-500">
           Showing page {page} of {totalPages} ({total} clients)
         </p>
         <div className="flex items-center gap-2">
           <Link
             href={buildPageHref(Math.max(1, page - 1), filters)}
             aria-disabled={page <= 1}
-            className="rounded-md border px-3 py-1.5 text-sm font-medium aria-disabled:pointer-events-none aria-disabled:opacity-50"
+            className="rounded-lg border border-[#2A3F66] px-4 py-2 text-sm font-medium text-slate-300 transition-colors hover:bg-[#111D35] hover:text-slate-100 aria-disabled:pointer-events-none aria-disabled:opacity-50"
           >
             Previous
           </Link>
           <Link
             href={buildPageHref(Math.min(totalPages, page + 1), filters)}
             aria-disabled={page >= totalPages}
-            className="rounded-md border px-3 py-1.5 text-sm font-medium aria-disabled:pointer-events-none aria-disabled:opacity-50"
+            className="rounded-lg border border-[#2A3F66] px-4 py-2 text-sm font-medium text-slate-300 transition-colors hover:bg-[#111D35] hover:text-slate-100 aria-disabled:pointer-events-none aria-disabled:opacity-50"
           >
             Next
           </Link>
