@@ -19,7 +19,7 @@ type AlertsTableProps = {
 };
 
 function formatDateTime(date: Date | null): string {
-  if (!date) return "—";
+  if (!date) return "-";
   return new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "numeric",

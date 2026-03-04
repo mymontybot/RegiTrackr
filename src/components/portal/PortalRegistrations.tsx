@@ -13,7 +13,7 @@ type PortalRegistrationsProps = {
 };
 
 function formatDate(date: Date | null): string {
-  if (!date) return "—";
+  if (!date) return "-";
   return new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "numeric",
@@ -47,7 +47,7 @@ export function PortalRegistrations({ rows }: PortalRegistrationsProps) {
               <TableRow key={row.id}>
                 <TableCell className="font-medium">{row.stateCode}</TableCell>
                 <TableCell>{formatDate(row.registrationDate)}</TableCell>
-                <TableCell>{row.filingFrequency ?? "—"}</TableCell>
+                <TableCell>{row.filingFrequency ?? "-"}</TableCell>
                 <TableCell>{row.maskedAccountNumber}</TableCell>
               </TableRow>
             ))}

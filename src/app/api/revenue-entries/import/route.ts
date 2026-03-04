@@ -35,7 +35,7 @@ export async function POST(req: Request) {
       return NextResponse.json(
         {
           success: false,
-          message: "File too large — try splitting into smaller batches",
+          message: "File too large. Try splitting into smaller batches.",
           imported: 0,
           errors: [],
           totalRows: parsed.totalRows,
@@ -84,7 +84,7 @@ export async function POST(req: Request) {
         return NextResponse.json(
           {
             success: false,
-            message: "File too large — try splitting into smaller batches",
+            message: "File too large. Try splitting into smaller batches.",
             imported: 0,
             errors: [],
             totalRows: parsed.totalRows,

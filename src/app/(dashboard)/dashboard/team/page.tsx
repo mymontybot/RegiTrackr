@@ -16,7 +16,7 @@ import {
 import { WorkloadService } from "@/lib/services/workload.service";
 
 function formatDate(date: Date | null): string {
-  if (!date) return "—";
+  if (!date) return "-";
   return new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "numeric",
@@ -99,7 +99,7 @@ export default async function TeamWorkloadPage() {
             href="/dashboard?assignedStaffId=unassigned"
             className="block rounded-lg border border-[#854D0E] bg-[#1A1400] px-4 py-3 text-sm text-[#FDE047]"
           >
-            {workload.unassignedClientCount} clients ({workload.unassignedEntityCount} entities) have no assigned staff member — assign them to track workload accurately
+            {workload.unassignedClientCount} clients ({workload.unassignedEntityCount} entities) have no assigned staff member. Assign them to track workload accurately.
           </Link>
         ) : null}
 

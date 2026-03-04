@@ -38,7 +38,7 @@ export const PRICING = {
   ],
 
   foundingMemberCap: 25,
-  foundingMemberNote: 'Founding member rate — locked for life while subscription is active.',
+  foundingMemberNote: 'Founding member rate, locked for life while subscription is active.',
 } as const
 
 export type TierId = 'starter' | 'growth' | 'pro' | 'enterprise'

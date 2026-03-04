@@ -82,7 +82,7 @@ function detectDataQualityNote(sortedMonthIds: number[]): string | null {
 
   const first = monthFromId(sortedMonthIds[0]);
   if (first.month > 1) {
-    return `Revenue data starts ${formatMonthYear(first.year, first.month)} — earlier crossing dates may not be reflected`;
+    return `Revenue data starts ${formatMonthYear(first.year, first.month)}. Earlier crossing dates may not be reflected`;
   }
 
   for (let i = 1; i < sortedMonthIds.length; i += 1) {
@@ -91,7 +91,7 @@ function detectDataQualityNote(sortedMonthIds: number[]): string | null {
     if (current - prev > 1) {
       const gapStart = monthFromId(prev + 1);
       const gapEnd = monthFromId(current - 1);
-      return `Revenue data has gaps (${formatMonthYear(gapStart.year, gapStart.month)} to ${formatMonthYear(gapEnd.year, gapEnd.month)}) — earlier crossing dates may not be reflected`;
+      return `Revenue data has gaps (${formatMonthYear(gapStart.year, gapStart.month)} to ${formatMonthYear(gapEnd.year, gapEnd.month)}). Earlier crossing dates may not be reflected`;
     }
   }
 

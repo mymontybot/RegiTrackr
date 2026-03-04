@@ -106,7 +106,7 @@ export function PricingCalculator() {
               className="accent-amber-500"
             />
             <label htmlFor="founding" className="cursor-pointer text-xs text-slate-400">
-              Founding member pricing (first 25 firms — locked for life)
+              Founding member pricing (first 25 firms, locked for life)
             </label>
           </div>
 

@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export const metadata = {
   title: "Privacy Policy | RegiTrackr",
-  description: "Privacy Policy for RegiTrackr — how we collect, store, and protect your data.",
+  description: "Privacy Policy for RegiTrackr: how we collect, store, and protect your data.",
 };
 
 export default function PrivacyPage() {

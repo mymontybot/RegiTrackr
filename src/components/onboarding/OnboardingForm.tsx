@@ -5,10 +5,10 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 const CLIENT_COUNT_OPTIONS = [
-  "1–10 clients",
-  "11–25 clients",
-  "26–50 clients",
-  "51–100 clients",
+  "1 to 10 clients",
+  "11 to 25 clients",
+  "26 to 50 clients",
+  "51 to 100 clients",
   "100+ clients",
 ] as const;
 

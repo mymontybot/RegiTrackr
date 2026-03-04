@@ -270,7 +270,7 @@ export class PortalService {
       filingFrequency: row.filingFrequency,
       maskedAccountNumber: row.stateAccountNumber
         ? maskAccountNumber(decrypt(row.stateAccountNumber))
-        : "—",
+        : "-",
       status: row.status,
     }));
   }

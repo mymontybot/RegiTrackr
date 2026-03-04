@@ -22,7 +22,7 @@ type NexusTriggerHistoryProps = {
 };
 
 function formatMonthYear(value: { year: number; month: number } | null): string {
-  if (!value) return "—";
+  if (!value) return "-";
   return new Date(Date.UTC(value.year, value.month - 1, 1)).toLocaleString("en-US", {
     month: "long",
     year: "numeric",
@@ -149,7 +149,7 @@ export function NexusTriggerHistory({ entityId }: NexusTriggerHistoryProps) {
                       {row.dataQualityNote ? (
                         <p className="text-xs text-[#FDE047]">{row.dataQualityNote}</p>
                       ) : (
-                        "—"
+                        "-"
                       )}
                     </TableCell>
                   </TableRow>

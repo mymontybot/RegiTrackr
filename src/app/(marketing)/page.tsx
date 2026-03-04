@@ -4,12 +4,12 @@ import { WaitlistForm } from "@/components/marketing/WaitlistForm";
 
 const comparisonRows = [
   { feature: "Nexus threshold monitoring", regitrackr: "✓", avalara: "Partial", taxjar: "Partial", spreadsheets: "Manual" },
-  { feature: "CPA multi-client dashboard", regitrackr: "✓", avalara: "—", taxjar: "—", spreadsheets: "Manual" },
-  { feature: "Filing deadline calendar", regitrackr: "✓", avalara: "—", taxjar: "—", spreadsheets: "Manual" },
+  { feature: "CPA multi-client dashboard", regitrackr: "✓", avalara: "-", taxjar: "-", spreadsheets: "Manual" },
+  { feature: "Filing deadline calendar", regitrackr: "✓", avalara: "-", taxjar: "-", spreadsheets: "Manual" },
   { feature: "Multi-entity management", regitrackr: "✓", avalara: "Ent.", taxjar: "Limited", spreadsheets: "Manual" },
-  { feature: "AI compliance narrative", regitrackr: "✓", avalara: "—", taxjar: "—", spreadsheets: "—" },
-  { feature: "Client portal", regitrackr: "✓", avalara: "—", taxjar: "—", spreadsheets: "—" },
-  { feature: "Tax calculation & filing", regitrackr: "—", avalara: "✓", taxjar: "✓", spreadsheets: "—" },
+  { feature: "AI compliance narrative", regitrackr: "✓", avalara: "-", taxjar: "-", spreadsheets: "-" },
+  { feature: "Client portal", regitrackr: "✓", avalara: "-", taxjar: "-", spreadsheets: "-" },
+  { feature: "Tax calculation & filing", regitrackr: "-", avalara: "✓", taxjar: "✓", spreadsheets: "-" },
   { feature: "SMB-accessible pricing", regitrackr: "✓", avalara: "Partial", taxjar: "✓", spreadsheets: "✓" },
 ];
 
@@ -27,8 +27,8 @@ function renderCellValue(value: string) {
   if (value === "✓") {
     return <span className="font-medium text-[#4ADE80]">✓</span>;
   }
-  if (value === "—") {
-    return <span className="text-slate-600">—</span>;
+  if (value === "-") {
+    return <span className="text-slate-600">-</span>;
   }
   if (value === "Manual") {
     return <span className="text-slate-400">Manual</span>;
@@ -77,7 +77,7 @@ export default function MarketingPage() {
               {"Stop tracking nexus\nin spreadsheets."}
             </h1>
             <p className="mt-6 max-w-2xl text-xl leading-relaxed text-slate-400">
-              RegiTrackr gives CPA firms a single compliance dashboard — real-time nexus threshold monitoring, filing
+              RegiTrackr gives CPA firms a single compliance dashboard: real-time nexus threshold monitoring, filing
               deadline calendars, and an AI-powered briefing on every client's exposure. Before the liability event,
               not after.
             </p>
@@ -101,16 +101,16 @@ export default function MarketingPage() {
                 <p className="text-base leading-relaxed text-slate-300">
                   Before Wayfair, a business needed a physical presence in a state to owe sales tax there. The ruling
                   changed everything: now any business exceeding $100,000 in sales to a state must register, collect,
-                  and remit — regardless of where they operate.
+                  and remit, regardless of where they operate.
                 </p>
                 <p className="text-base leading-relaxed text-slate-300">
-                  CPA firms managing 20–100 business clients are tracking this exposure across hundreds of
+                  CPA firms managing 20 to 100 business clients are tracking this exposure across hundreds of
                   state-entity combinations. In spreadsheets. With calendar reminders. And manual lookups on state
                   revenue department websites.
                 </p>
                 <p className="text-base font-medium leading-relaxed text-blue-400">
                   One missed registration is a six-figure audit. One missed filing is a damaged client relationship.
-                  The tools that exist — Avalara, TaxJar — solve the problem after nexus is triggered. Nobody built
+                  The tools that exist (Avalara, TaxJar) solve the problem after nexus is triggered. Nobody built
                   the monitoring layer. Until now.
                 </p>
               </div>
@@ -135,7 +135,7 @@ export default function MarketingPage() {
                   className="rounded-xl border border-[#1E2D4A] bg-[#060B18] p-6"
                   style={{ borderTop: "1px solid rgba(59,130,246,0.4)" }}
                 >
-                  <div className="font-mono text-4xl font-bold text-slate-100">3–5 min</div>
+                  <div className="font-mono text-4xl font-bold text-slate-100">3 to 5 min</div>
                   <p className="mt-2 text-sm text-slate-400">
                     a CPA spends synthesizing one client's compliance position
                   </p>
@@ -160,8 +160,8 @@ export default function MarketingPage() {
                 </div>
                 <h3 className="mb-2 text-base font-semibold text-slate-100">Real-Time Nexus Threshold Monitoring</h3>
                 <p className="text-sm leading-relaxed text-slate-400">
-                  Track every client entity's revenue exposure across all 50 states. Color-coded status bands — Safe,
-                  Warning, Urgent, Triggered — update automatically as revenue data is entered. Never miss an
+                  Track every client entity's revenue exposure across all 50 states. Color-coded status bands (Safe,
+                  Warning, Urgent, Triggered) update automatically as revenue data is entered. Never miss an
                   approaching threshold again.
                 </p>
               </article>
@@ -173,7 +173,7 @@ export default function MarketingPage() {
                 <h3 className="mb-2 text-base font-semibold text-slate-100">Filing Deadline Calendar</h3>
                 <p className="text-sm leading-relaxed text-slate-400">
                   Every sales tax filing deadline for every client in one unified calendar. Holiday-adjusted due
-                  dates, configurable reminders, and a status workflow from Upcoming to Confirmed — with a full audit
+                  dates, configurable reminders, and a status workflow from Upcoming to Confirmed, with a full audit
                   trail.
                 </p>
               </article>
@@ -185,7 +185,7 @@ export default function MarketingPage() {
                 <h3 className="mb-2 text-base font-semibold text-slate-100">AI Nexus Exposure Narrative</h3>
                 <p className="text-sm leading-relaxed text-slate-400">
                   Open any client dashboard and read a plain-English paragraph synthesizing their complete compliance
-                  position in 8 seconds. Threshold proximity, upcoming deadlines, registration gaps — all synthesized.
+                  position in 8 seconds. Threshold proximity, upcoming deadlines, registration gaps. All synthesized.
                   Included for every plan.
                 </p>
               </article>
@@ -197,7 +197,7 @@ export default function MarketingPage() {
                 <h3 className="mb-2 text-base font-semibold text-slate-100">Multi-Entity Client Management</h3>
                 <p className="text-sm leading-relaxed text-slate-400">
                   Manage unlimited clients, each with multiple legal entities, under one firm account. Role-based
-                  staff access, workload visibility, and a white-labeled client portal — so your clients can see their
+                  staff access, workload visibility, and a white-labeled client portal so your clients can see their
                   own status without calling you.
                 </p>
               </article>
