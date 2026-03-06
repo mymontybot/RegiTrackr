@@ -28,9 +28,26 @@ const prisma = new PrismaClient({
   adapter: new PrismaPg(pool),
 });
 
+async function backfillThresholdVerificationDates(prisma: PrismaClient): Promise<number> {
+  const now = new Date();
+  const nextReview = new Date(now);
+  nextReview.setDate(nextReview.getDate() + 90);
+  const result = await prisma.stateThreshold.updateMany({
+    data: {
+      lastVerifiedDate: now,
+      lastVerifiedBy: "MANUAL",
+      nextReviewDue: nextReview,
+    },
+  });
+  return result.count;
+}
+
 async function main() {
   const thresholdCount = await seedStateThresholds(prisma);
   console.log(`[seed] StateThreshold rows created: ${thresholdCount}`);
+
+  const backfillCount = await backfillThresholdVerificationDates(prisma);
+  console.log(`[seed] StateThreshold verification dates backfilled: ${backfillCount}`);
 
   const filingRuleCount = await seedStateFilingRules(prisma);
   console.log(`[seed] StateFilingRule rows created: ${filingRuleCount}`);

@@ -15,6 +15,8 @@ export type LogContext = {
   entityId?: string;
   service?: string;
   jobName?: string;
+  stateCode?: string;
+  sourceUrl?: string;
   error?: unknown;
 };
 

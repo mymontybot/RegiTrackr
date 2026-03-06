@@ -22,8 +22,8 @@ export default function AboutPage() {
         the workflow or were priced for enterprise budgets.
       </p>
       <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-slate-400">
-        RegiTrackr is the monitoring layer that was missing: real-time threshold tracking, filing calendar management,
-        and AI-powered compliance briefings, at a price point that works for firms of any size.
+        RegiTrackr is the monitoring layer that was missing: an AI-monitored threshold database, filing calendar
+        management, and AI-powered compliance briefings, at a price point that works for firms of any size.
       </p>
       <p className="mt-8 text-sm text-slate-500">Questions or partnership inquiries:</p>
       <a

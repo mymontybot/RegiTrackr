@@ -97,7 +97,10 @@ export default function AiDisclaimerPublicPage() {
         <p className="mt-3 text-sm leading-relaxed text-slate-400">The model does not have access to:</p>
         <ul className="mt-2 list-disc space-y-1 pl-6 text-sm leading-relaxed text-slate-400">
           <li>State tax law databases or live regulatory feeds</li>
-          <li>Official nexus threshold tables (these are maintained separately in RegiTrackr's database)</li>
+          <li>
+            Official nexus threshold tables (these are maintained in RegiTrackr's AI-monitored threshold database and
+            human-verified before publication)
+          </li>
           <li>Client data from other firms or other clients</li>
           <li>Any information beyond what is present in the current client's RegiTrackr record</li>
         </ul>
@@ -114,10 +117,10 @@ export default function AiDisclaimerPublicPage() {
           reflect that.
         </p>
         <p className="mt-3 text-sm leading-relaxed text-slate-400">
-          RegiTrackr maintains a database of economic nexus thresholds by state. This database is reviewed quarterly
-          against official state revenue department sources. However, states may change thresholds, effective dates, or
-          rules at any time. Always verify current thresholds directly with the relevant state revenue department before
-          advising a client.
+          RegiTrackr maintains an AI-monitored threshold database by state. Our system checks all 50 state revenue
+          department pages weekly and flags potential changes automatically. Every threshold is human-verified before
+          going live. However, states may change thresholds, effective dates, or rules at any time. Always verify
+          current thresholds directly with the relevant state revenue department before advising a client.
         </p>
       </section>
 

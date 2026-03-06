@@ -5,12 +5,12 @@ import { WaitlistForm } from "@/components/marketing/WaitlistForm";
 export const metadata = {
   title: "RegiTrackr — Nexus Compliance Monitoring for CPA Firms",
   description:
-    "Real-time economic nexus threshold monitoring, filing deadline management, and AI-powered compliance briefings for CPA firms managing multi-state clients.",
+    "AI-monitored threshold database, filing deadline management, and AI-powered compliance briefings for CPA firms managing multi-state clients.",
   alternates: { canonical: "https://regitrackr.com" },
 };
 
 const comparisonRows = [
-  { feature: "Nexus threshold monitoring", regitrackr: "✓", avalara: "Partial", taxjar: "Partial", spreadsheets: "Manual" },
+  { feature: "AI-monitored threshold database", regitrackr: "✓", avalara: "Partial", taxjar: "Partial", spreadsheets: "Manual" },
   { feature: "CPA multi-client dashboard", regitrackr: "✓", avalara: "-", taxjar: "-", spreadsheets: "Manual" },
   { feature: "Filing deadline calendar", regitrackr: "✓", avalara: "-", taxjar: "-", spreadsheets: "Manual" },
   { feature: "Multi-entity management", regitrackr: "✓", avalara: "Ent.", taxjar: "Limited", spreadsheets: "Manual" },
@@ -61,7 +61,7 @@ export default function MarketingPage() {
               {"Stop tracking nexus\nin spreadsheets."}
             </h1>
             <p className="mt-6 max-w-2xl text-xl leading-relaxed text-slate-400">
-              RegiTrackr gives CPA firms a single compliance dashboard: real-time nexus threshold monitoring, filing
+              RegiTrackr gives CPA firms a single compliance dashboard: an AI-monitored threshold database, filing
               deadline calendars, and an AI-powered briefing on every client's exposure. Before the liability event,
               not after.
             </p>
@@ -142,11 +142,10 @@ export default function MarketingPage() {
                 <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500/10">
                   <Activity className="h-5 w-5 text-blue-400" />
                 </div>
-                <h3 className="mb-2 text-base font-semibold text-slate-100">Real-Time Nexus Threshold Monitoring</h3>
+                <h3 className="mb-2 text-base font-semibold text-slate-100">AI-monitored threshold database</h3>
                 <p className="text-sm leading-relaxed text-slate-400">
-                  Track every client entity's revenue exposure across all 50 states. Color-coded status bands (Safe,
-                  Warning, Urgent, Triggered) update automatically as revenue data is entered. Never miss an
-                  approaching threshold again.
+                  Our system checks all 50 state revenue department pages weekly and flags potential changes
+                  automatically. Every threshold is human-verified before going live.
                 </p>
               </article>
 

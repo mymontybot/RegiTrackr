@@ -82,6 +82,7 @@ export async function seedStateThresholds(prisma: PrismaClient): Promise<number>
       exemptCategories: row.exemptCategories,
       effectiveDate: new Date(row.effectiveDate),
       lastVerifiedAt,
+      source_url: row.sourceUrl,
     })),
   });
 

@@ -94,9 +94,9 @@ export default function PricingPage() {
             <div className="mx-auto mt-24 max-w-4xl">
               <Eyebrow>All Plans Include</Eyebrow>
               <p className="mx-auto mt-2 mb-12 max-w-3xl text-sm text-slate-400">
-                Nexus threshold monitoring, filing deadline calendar, AI Nexus Exposure Narrative, multi-entity
-                management, client portal, and PDF risk scorecard export. No feature tiers. Every paying customer
-                gets everything.
+                ✓ AI-monitored nexus threshold database (50 states + DC, weekly checks, human-verified), filing
+                deadline calendar, AI Nexus Exposure Narrative, multi-entity management, client portal, and PDF risk
+                scorecard export. No feature tiers. Every paying customer gets everything.
               </p>
 
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">

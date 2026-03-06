@@ -8,6 +8,8 @@ import {
   nexusRecalculationEventJob,
 } from "@/inngest/jobs/nexus-recalculation.job";
 import { reminderDispatchJob } from "@/inngest/jobs/reminder-dispatch.job";
+import { thresholdMonitorAllJob } from "@/inngest/jobs/threshold-monitor-all.job";
+import { thresholdMonitorStateJob } from "@/inngest/jobs/threshold-monitor.job";
 
 export const inngestFunctions = [
   nexusRecalculationCronJob,
@@ -16,4 +18,6 @@ export const inngestFunctions = [
   reminderDispatchJob,
   narrativeCacheRefreshCronJob,
   narrativeCacheRefreshEventJob,
+  thresholdMonitorAllJob,
+  thresholdMonitorStateJob,
 ];

@@ -18,7 +18,7 @@ const PRODUCT_ITEMS = [
   {
     icon: Activity,
     label: "Nexus Monitoring",
-    sub: "Real-time threshold tracking across all 50 states",
+    sub: "AI-monitored threshold database with weekly checks",
     href: "/#features",
   },
   {

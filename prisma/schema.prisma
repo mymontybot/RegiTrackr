@@ -213,14 +213,45 @@ model StateThreshold {
   exemptCategories     Json?
   effectiveDate        DateTime          @db.Date
   sourceUrl            String
+  source_url           String?           // Official state revenue dept URL — required on all new records
   lastVerifiedAt       DateTime
   dataConfidence       DataConfidence
+  dataConfidenceLevel  String            @default("VERIFIED") // VERIFIED | PENDING_REVIEW | FLAGGED | UNVERIFIED
+  lastVerifiedDate     DateTime?         // Date a human last confirmed this threshold is current
+  lastVerifiedBy       String?           // "MANUAL" | "AI_SCRAPE" | userId of admin who verified
+  nextReviewDue        DateTime?         // lastVerifiedDate + 90 days on every verification
   notes                String?
   version              Int
   createdAt            DateTime          @default(now())
+  changeFlags          ThresholdChangeFlag[]
 
   @@unique([stateCode, version])
   @@index([stateCode, effectiveDate])
+}
+
+model ThresholdChangeFlag {
+  id               String         @id @default(cuid())
+  stateCode        String         // e.g. "TX"
+  stateThresholdId String
+  stateThreshold   StateThreshold @relation(fields: [stateThresholdId], references: [id])
+
+  flagType         String         // AMOUNT_CHANGE | NEW_RULE | PAGE_STRUCTURE_CHANGE | MANUAL_REPORT | SCRAPE_ERROR
+  detectedValue    String?        // What the scraper found
+  currentValue     String?        // What we currently store
+  sourceUrl        String?        // URL where change was detected
+  rawSnippet       String?        @db.Text // Raw text from page (max 500 chars)
+
+  status           String         @default("PENDING") // PENDING | REVIEWED_NO_CHANGE | UPDATED | DISMISSED
+  reviewedBy       String?        // userId of admin who reviewed
+  reviewedAt       DateTime?
+  reviewNote       String?
+
+  detectedAt       DateTime       @default(now())
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  @@index([stateCode, status])
+  @@index([status, detectedAt])
 }
 
 model StateFilingRule {
