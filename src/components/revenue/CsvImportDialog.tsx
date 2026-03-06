@@ -31,7 +31,11 @@ type ImportResponse = {
   message?: string;
 };
 
-export function CsvImportDialog() {
+type CsvImportDialogProps = {
+  trigger?: React.ReactNode;
+};
+
+export function CsvImportDialog({ trigger }: CsvImportDialogProps) {
   const [open, setOpen] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
@@ -75,7 +79,7 @@ export function CsvImportDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>Import Revenue CSV</Button>
+        {trigger ?? <Button>Import Revenue CSV</Button>}
       </DialogTrigger>
       <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-3xl border-[#1E2D4A] bg-[#0D1526]">
         <DialogHeader>

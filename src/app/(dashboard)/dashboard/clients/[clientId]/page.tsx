@@ -127,6 +127,7 @@ export default async function ClientDetailPage({ params }: ClientDetailPageProps
           id: e.id,
           name: e.name,
           entityType: e.entityType,
+          hasRevenueData: (e._count?.revenueEntries ?? 0) > 0,
           alerts: e.alerts.map((a) => ({ band: a.band, stateCode: a.stateCode })),
           filingRecords: e.filingRecords.map((f) => ({ dueDate: f.dueDate })),
         }))}

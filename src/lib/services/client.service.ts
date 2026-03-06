@@ -154,6 +154,7 @@ export class ClientService extends BaseService {
         },
         entities: {
           include: {
+            _count: { select: { revenueEntries: true } },
             alerts: {
               where: { isSnoozed: false },
               orderBy: { createdAt: "desc" },

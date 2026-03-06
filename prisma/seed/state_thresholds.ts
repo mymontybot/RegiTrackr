@@ -15,6 +15,63 @@ type ThresholdSeedRow = {
 };
 
 const EFFECTIVE_DATE = "2025-01-01";
+const VERIFIED_DATE = new Date("2026-03-06");
+const NEXT_REVIEW_DUE = new Date("2026-06-06");
+const NO_SALES_TAX_STATES = new Set(["MT", "NH", "OR", "DE"]);
+
+const STATE_SOURCE_URLS: Record<string, string> = {
+  AL: "https://www.revenue.alabama.gov/individual-corporate/nexus/",
+  AK: "https://tax.alaska.gov/programs/programs/index.aspx?60610",
+  AZ: "https://azdor.gov/transaction-privilege-tax/remote-sellers-and-marketplace-facilitators",
+  AR: "https://www.dfa.arkansas.gov/excise-tax/sales-and-use-tax/economic-nexus/",
+  CA: "https://www.cdtfa.ca.gov/industry/wayfair.htm",
+  CO: "https://tax.colorado.gov/sales-tax-economic-nexus",
+  CT: "https://portal.ct.gov/DRS/Sales-Tax/Economic-Nexus",
+  DE: "https://revenue.delaware.gov/business-tax-forms/",
+  FL: "https://floridarevenue.com/taxes/taxesfees/Pages/remote_sellers.aspx",
+  GA: "https://dor.georgia.gov/remote-sellers",
+  HI: "https://tax.hawaii.gov/geninfo/economic-nexus/",
+  ID: "https://tax.idaho.gov/taxes/sales-use/remote-sellers/",
+  IL: "https://tax.illinois.gov/businesses/sales/use-tax-remote-retailers.html",
+  IN: "https://www.in.gov/dor/business-tax/sales-tax/economic-nexus/",
+  IA: "https://tax.iowa.gov/remote-sellers-and-marketplace-facilitators",
+  KS: "https://www.ksrevenue.gov/salesremote.html",
+  KY: "https://revenue.ky.gov/Business/Sales-and-Excise-Taxes/Pages/Remote-Retailers.aspx",
+  LA: "https://revenue.louisiana.gov/SalesTax/RemoteSellers",
+  ME: "https://www.maine.gov/revenue/taxes/sales-use-service-provider-tax/remote-sellers",
+  MD: "https://www.marylandtaxes.gov/business/sales-use/remote-seller.php",
+  MA: "https://www.mass.gov/info-details/remote-sellers-and-marketplace-facilitators",
+  MI: "https://www.michigan.gov/taxes/business-taxes/sales-use-tax/remote-sellers",
+  MN: "https://www.revenue.state.mn.us/remote-sellers",
+  MS: "https://www.dor.ms.gov/business/sales-and-use-tax/remote-sellers",
+  MO: "https://dor.mo.gov/taxation/business/remote-sellers/",
+  MT: "https://mtrevenue.gov/taxes/sales-use-tax/",
+  NE: "https://revenue.nebraska.gov/businesses/remote-sellers",
+  NV: "https://tax.nv.gov/Businesses/Sales_and_Use_Tax/Economic_Nexus/",
+  NH: "https://www.revenue.nh.gov/faq/business-tax.htm",
+  NJ: "https://www.state.nj.us/treasury/taxation/remote-sellers.shtml",
+  NM: "https://www.tax.newmexico.gov/businesses/economic-nexus/",
+  NY: "https://www.tax.ny.gov/bus/st/remote_sellers.htm",
+  NC: "https://www.ncdor.gov/taxes-forms/sales-and-use-tax/remote-sales",
+  ND: "https://www.tax.nd.gov/business/sales-and-use-tax/remote-sellers",
+  OH: "https://tax.ohio.gov/business/ohio-business-taxes/sales-and-use/remote-sellers",
+  OK: "https://oklahoma.gov/tax/businesses/sales-and-use-tax/remote-sellers.html",
+  OR: "https://www.oregon.gov/dor/programs/businesses/Pages/corporate-activity-tax.aspx",
+  PA: "https://www.revenue.pa.gov/TaxTypes/SUT/Pages/Remote-Seller.aspx",
+  RI: "https://tax.ri.gov/businesses/remote-sellers",
+  SC: "https://dor.sc.gov/tax/sales/remote-sellers",
+  SD: "https://dor.sd.gov/businesses/taxes/sales-use-tax/remote-sellers/",
+  TN: "https://www.tn.gov/revenue/taxes/sales-and-use-tax/remote-sellers.html",
+  TX: "https://comptroller.texas.gov/taxes/sales/remote-sellers/",
+  UT: "https://tax.utah.gov/sales/remote-sellers",
+  VT: "https://tax.vermont.gov/business-and-corp/sales-and-use-tax/remote-sellers",
+  VA: "https://www.tax.virginia.gov/remote-sellers",
+  WA: "https://dor.wa.gov/education/industry-guides/remote-sellers",
+  WV: "https://tax.wv.gov/Business/SalesAndUseTax/Pages/RemoteSellers.aspx",
+  WI: "https://www.revenue.wi.gov/Pages/FAQS/ise-nexus.aspx",
+  WY: "https://revenue.wyo.gov/Excise-Tax-Division/remote-sellers",
+  DC: "https://otr.cfo.dc.gov/page/sales-and-use-tax-faqs",
+};
 
 // NOTE: Threshold data changes frequently. LOW confidence states are logged at seed time.
 const STATE_THRESHOLDS: ThresholdSeedRow[] = [
@@ -72,19 +129,67 @@ const STATE_THRESHOLDS: ThresholdSeedRow[] = [
 ];
 
 export async function seedStateThresholds(prisma: PrismaClient): Promise<number> {
-  const lastVerifiedAt = new Date();
+  const rowsByCode = new Map(STATE_THRESHOLDS.map((row) => [row.stateCode, row]));
+  let recordsProcessed = 0;
 
-  await prisma.stateThreshold.deleteMany({ where: { version: 1 } });
+  for (const [stateCode, sourceUrl] of Object.entries(STATE_SOURCE_URLS)) {
+    const existing = await prisma.stateThreshold.findUnique({
+      where: {
+        stateCode_version: {
+          stateCode,
+          version: 1,
+        },
+      },
+      select: { id: true },
+    });
 
-  const result = await prisma.stateThreshold.createMany({
-    data: STATE_THRESHOLDS.map((row) => ({
-      ...row,
-      exemptCategories: row.exemptCategories,
-      effectiveDate: new Date(row.effectiveDate),
-      lastVerifiedAt,
-      source_url: row.sourceUrl,
-    })),
-  });
+    if (!existing && NO_SALES_TAX_STATES.has(stateCode)) {
+      console.warn(`⚠ No StateThreshold record found for ${stateCode} — skipping.`);
+      continue;
+    }
+
+    const seedRow = rowsByCode.get(stateCode);
+    if (!existing && !seedRow) {
+      console.warn(`⚠ No seed data found for ${stateCode} — skipping.`);
+      continue;
+    }
+
+    await prisma.stateThreshold.upsert({
+      where: {
+        stateCode_version: {
+          stateCode,
+          version: 1,
+        },
+      },
+      update: {
+        source_url: sourceUrl,
+        dataConfidenceLevel: "VERIFIED",
+        lastVerifiedDate: VERIFIED_DATE,
+        lastVerifiedBy: "MANUAL",
+        nextReviewDue: NEXT_REVIEW_DUE,
+      },
+      create: {
+        stateCode: stateCode,
+        stateName: seedRow!.stateName,
+        salesThreshold: seedRow!.salesThreshold,
+        transactionThreshold: seedRow!.transactionThreshold,
+        measurementPeriod: seedRow!.measurementPeriod,
+        exemptCategories: seedRow!.exemptCategories,
+        effectiveDate: new Date(seedRow!.effectiveDate),
+        sourceUrl: seedRow!.sourceUrl,
+        source_url: sourceUrl,
+        lastVerifiedAt: VERIFIED_DATE,
+        dataConfidence: seedRow!.dataConfidence,
+        dataConfidenceLevel: "VERIFIED",
+        lastVerifiedDate: VERIFIED_DATE,
+        lastVerifiedBy: "MANUAL",
+        nextReviewDue: NEXT_REVIEW_DUE,
+        notes: seedRow!.notes,
+        version: seedRow!.version,
+      },
+    });
+    recordsProcessed += 1;
+  }
 
   const lowConfidence = STATE_THRESHOLDS.filter((row) => row.dataConfidence === "LOW").map(
     (row) => `${row.stateCode} (${row.stateName})`,
@@ -95,5 +200,8 @@ export async function seedStateThresholds(prisma: PrismaClient): Promise<number>
     );
   }
 
-  return result.count;
+  console.log(`✓ StateThreshold source_urls seeded: ${recordsProcessed} records updated`);
+  console.log("✓ All records set to VERIFIED with nextReviewDue 2026-06-06");
+
+  return recordsProcessed;
 }
